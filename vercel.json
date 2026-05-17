@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/plantnet/:match*",
-      "destination": "https://my-api.plantnet.org/v2/identify/:match*"
+      "destination": "/api/plantnet"
     },
     {
       "source": "/(.*)",
