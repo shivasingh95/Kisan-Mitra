@@ -1,0 +1,120 @@
+/* ═══════════════════════════════════════════════════════════════
+   KRISHI MITRA — Design Tokens
+   Premium Light Green + White Agricultural Theme
+═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ── Brand Colors ── */
+  --green-900: #1B4332;
+  --green-800: #2D6A4F;
+  --green-700: #40916C;
+  --green-600: #52B788;
+  --green-500: #74C69D;
+  --green-400: #95D5B2;
+  --green-300: #B7E4C7;
+  --green-200: #D8F3DC;
+  --green-100: #ECFBF0;
+  --green-50:  #F8FFF8;
+
+  /* ── Semantic Aliases ── */
+  --primary:        var(--green-800);
+  --primary-hover:  var(--green-700);
+  --primary-light:  var(--green-600);
+  --primary-pale:   var(--green-200);
+  --primary-ghost:  var(--green-100);
+  --accent:         var(--green-700);
+
+  /* ── Backgrounds ── */
+  --bg-app:    #F4FCF5;
+  --bg-main:   var(--green-50);
+  --bg-card:   #FFFFFF;
+  --bg-glass:  rgba(255, 255, 255, 0.72);
+  --bg-sidebar: #FFFFFF;
+  --bg-nav:    rgba(255, 255, 255, 0.96);
+
+  /* ── Typography ── */
+  --text-900: var(--green-900);
+  --text-800: #1E3A2F;
+  --text-700: #2D5240;
+  --text-muted: #4A7C59;
+  --text-light: #7DA98A;
+  --text-white: #FFFFFF;
+
+  /* ── Status ── */
+  --success: #16A34A;
+  --warning: #D97706;
+  --danger:  #DC2626;
+  --info:    #2563EB;
+  --success-bg: #F0FDF4;
+  --warning-bg: #FFFBEB;
+  --danger-bg:  #FFF1F1;
+  --info-bg:    #EFF6FF;
+
+  /* ── Shadows (3D depth system) ── */
+  --shadow-xs:   0 1px 3px rgba(45, 106, 79, 0.06);
+  --shadow-sm:   0 4px 12px rgba(45, 106, 79, 0.08);
+  --shadow-md:   0 8px 24px rgba(45, 106, 79, 0.12);
+  --shadow-lg:   0 16px 48px rgba(45, 106, 79, 0.16);
+  --shadow-xl:   0 24px 64px rgba(45, 106, 79, 0.20);
+  --shadow-3d:   0 20px 60px rgba(45, 106, 79, 0.18), 0 4px 16px rgba(45, 106, 79, 0.10);
+  --shadow-inset: inset 0 2px 6px rgba(45, 106, 79, 0.06);
+  --shadow-glow:  0 0 0 3px rgba(82, 183, 136, 0.30);
+  --shadow-card-hover: 0 28px 70px rgba(45, 106, 79, 0.22), 0 8px 20px rgba(45, 106, 79, 0.10);
+
+  /* ── Border ── */
+  --border-color:    rgba(45, 106, 79, 0.12);
+  --border-light:    rgba(45, 106, 79, 0.06);
+  --border-medium:   rgba(45, 106, 79, 0.20);
+  --border-radius-xs: 6px;
+  --border-radius-sm: 10px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+  --border-radius-xl: 32px;
+  --border-radius-full: 9999px;
+
+  /* ── Spacing ── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
+  --space-7: 28px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px; --space-20: 80px;
+
+  /* ── Typography Scale ── */
+  --text-xs:   0.72rem;
+  --text-sm:   0.82rem;
+  --text-base: 0.92rem;
+  --text-md:   1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+  --text-5xl:  3rem;
+
+  /* ── Font families ── */
+  --font-body:  'Inter', system-ui, sans-serif;
+  --font-hindi: 'Noto Sans Devanagari', sans-serif;
+
+  /* ── Transitions ── */
+  --ease-smooth:  cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ease-spring:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out:  cubic-bezier(0.4, 0, 0.2, 1);
+  --transition:   all 0.3s var(--ease-smooth);
+  --transition-fast: all 0.18s var(--ease-smooth);
+  --transition-slow: all 0.5s var(--ease-spring);
+
+  /* ── Layout ── */
+  --sidebar-width:  260px;
+  --navbar-height:  68px;
+  --content-max-w:  1280px;
+
+  /* ── Z-index layers ── */
+  --z-base:    1;
+  --z-card:    10;
+  --z-dropdown: 100;
+  --z-sidebar: 200;
+  --z-navbar:  300;
+  --z-modal:   400;
+  --z-toast:   500;
+}

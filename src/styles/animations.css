@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════
+   KRISHI MITRA — Animations & 3D Effects
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Page Enter ── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── 3D Card Float ── */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes floatRotate {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33%       { transform: translateY(-6px) rotate(1deg); }
+  66%       { transform: translateY(-3px) rotate(-1deg); }
+}
+
+/* ── Numbers ── */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Shimmer / Loading ── */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(82, 183, 136, 0); }
+}
+@keyframes liveDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.6; }
+}
+
+/* ── Spinner ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes spinnerTrail {
+  0%   { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ── Progress Bar ── */
+@keyframes progressFill {
+  from { width: 0%; }
+}
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* ── Scan Line (AI effect) ── */
+@keyframes scanLine {
+  0%   { top: 0%; opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+@keyframes scanPulse {
+  0%, 100% { opacity: 0.4; transform: scaleX(1); }
+  50%       { opacity: 1;   transform: scaleX(1.02); }
+}
+
+/* ── Notification Bounce ── */
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0deg); }
+  20%       { transform: rotate(15deg); }
+  40%       { transform: rotate(-12deg); }
+  60%       { transform: rotate(8deg); }
+  80%       { transform: rotate(-5deg); }
+}
+@keyframes dotPop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px) scaleY(0.95); }
+  to   { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Toast / Alert ── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* ── Step Wizard ── */
+@keyframes stepCheck {
+  0%   { transform: scale(0) rotate(-45deg); }
+  60%  { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ── Gradient Shift ── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Wave ── */
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(1.5); }
+}
+
+/* ══════════════════════════════════
+   Utility Animation Classes
+══════════════════════════════════ */
+.anim-page       { animation: pageEnter 0.55s var(--ease-spring) both; }
+.anim-fadeup     { animation: fadeUp 0.5s var(--ease-spring) both; }
+.anim-fadein     { animation: fadeIn 0.4s ease both; }
+.anim-fadeleft   { animation: fadeLeft 0.4s var(--ease-spring) both; }
+.anim-faderight  { animation: fadeRight 0.4s var(--ease-spring) both; }
+.anim-scalein    { animation: scaleIn 0.4s var(--ease-spring) both; }
+.anim-float      { animation: floatY 4s ease-in-out infinite; }
+.anim-float-slow { animation: floatY 7s ease-in-out infinite; }
+.anim-pulse-glow { animation: pulseGlow 2s infinite; }
+
+/* staggered delays */
+.delay-1  { animation-delay: 0.05s; }
+.delay-2  { animation-delay: 0.10s; }
+.delay-3  { animation-delay: 0.15s; }
+.delay-4  { animation-delay: 0.20s; }
+.delay-5  { animation-delay: 0.25s; }
+.delay-6  { animation-delay: 0.30s; }
+.delay-7  { animation-delay: 0.35s; }
+.delay-8  { animation-delay: 0.40s; }
+
+/* ── Skeleton / Shimmer ── */
+.skeleton {
+  background: linear-gradient(90deg, #e8f5e9 25%, #d8f3dc 50%, #e8f5e9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--border-radius-sm);
+}
