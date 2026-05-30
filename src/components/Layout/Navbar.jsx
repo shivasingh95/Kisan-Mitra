@@ -1,41 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import './Navbar.css';
 import { getWeather } from '../../services/weather';
+import { subscribeToNotifications, markNotificationRead } from '../../services/db';
 
 const PAGE_TITLES = {
-  dashboard: { en: 'Home Dashboard', hi: 'होम डैशबोर्ड' },
-  'crop-doctor': { en: 'Crop Doctor AI', hi: 'फ़सल डॉक्टर' },
-  'marketplace-sell': { en: 'Marketplace', hi: 'मंडी / बेचो' },
-  'marketplace-browse': { en: 'Browse Market', hi: 'बाज़ार देखो' },
-  'labour-hire': { en: 'Labour Hire', hi: 'मज़दूर भाड़े' },
-  'equipment-rent': { en: 'Equipment Rent', hi: 'उपकरण किराया' },
-  'expert-connect': { en: 'Expert Connect', hi: 'विशेषज्ञ' },
-  fintech: { en: 'Loans & Schemes', hi: 'ऋण व योजनाएं' },
-  'farm-profile': { en: 'My Profile', hi: 'मेरी प्रोफ़ाइल' },
-  'expert-home': { en: 'Expert Dashboard', hi: 'विशेषज्ञ डैशबोर्ड' },
-  sessions: { en: 'Session Management', hi: 'सत्र' },
-  earnings: { en: 'Earnings & Payouts', hi: 'कमाई' },
-  orders: { en: 'My Orders', hi: 'मेरे ऑर्डर' },
-  admin: { en: 'Admin Panel', hi: 'एडमिन पैनल' },
+  dashboard:           { en: 'Home Dashboard',    hi: 'होम डैशबोर्ड' },
+  'crop-doctor':       { en: 'Crop Doctor AI',    hi: 'फ़सल डॉक्टर' },
+  'marketplace-sell':  { en: 'Marketplace',       hi: 'मंडी / बेचो' },
+  'marketplace-browse':{ en: 'Browse Market',     hi: 'बाज़ार देखो' },
+  'labour-hire':       { en: 'Labour & Equipment',hi: 'मज़दूर व उपकरण' },
+  'equipment-rent':    { en: 'Equipment Rent',    hi: 'उपकरण किराया' },
+  'expert-connect':    { en: 'Expert Connect',    hi: 'विशेषज्ञ' },
+  fintech:             { en: 'Loans & Schemes',   hi: 'ऋण व योजनाएं' },
+  'farm-profile':      { en: 'My Profile',        hi: 'मेरी प्रोफ़ाइल' },
+  'expert-home':       { en: 'Expert Dashboard',  hi: 'विशेषज्ञ डैशबोर्ड' },
+  sessions:            { en: 'Session Management',hi: 'सत्र' },
+  earnings:            { en: 'Earnings & Payouts',hi: 'कमाई' },
+  orders:              { en: 'My Orders',         hi: 'मेरे ऑर्डर' },
+  admin:               { en: 'Admin Panel',       hi: 'एडमिन पैनल' },
+  'worker-dashboard':  { en: 'Worker Dashboard',  hi: 'श्रमिक डैशबोर्ड' },
+  'worker-register':   { en: 'Worker Registration',hi: 'श्रमिक पंजीकरण' },
 };
 
-const MOCK_ALERTS = [
-  { id: 1, text: 'Wheat Rust alert — Madhya Pradesh region', type: 'warning', time: '2h ago' },
-  { id: 2, text: 'New expert Dr. Ramesh joined the platform', type: 'info', time: '4h ago' },
-  { id: 3, text: 'Tomato prices up 18% today in Bhopal mandi', type: 'success', time: '6h ago' },
-];
+const NOTIF_ICONS = {
+  new_job:              '🆕',
+  application_accepted: '✅',
+  payment_released:     '💸',
+  job_reminder:         '⏰',
+};
 
 export default function Navbar() {
-  const { activeRoute, setSidebarOpen, sidebarOpen, demoRole } = useApp();
-  const [showAlerts, setShowAlerts] = useState(false);
+  const { activeRoute, setSidebarOpen, sidebarOpen, demoRole, firebaseUser } = useApp();
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
 
-  React.useEffect(() => {
-    getWeather('Bhopal').then(data => {
-      if (data) setWeatherData(data);
-    });
+  // ── Weather ────────────────────────────────────────────────
+  useEffect(() => {
+    getWeather('Bhopal').then(data => { if (data) setWeatherData(data); });
   }, []);
+
+  // ── Live Firestore notifications ───────────────────────────
+  useEffect(() => {
+    const uid = firebaseUser?.uid;
+    if (!uid || uid === 'demo') return;
+    const unsub = subscribeToNotifications(uid, (notifs) => {
+      setNotifications(notifs);
+    });
+    return unsub;
+  }, [firebaseUser]);
+
+  const unreadCount = notifications.length;
+
+  const handleNotifClick = async (notif) => {
+    if (firebaseUser?.uid && firebaseUser.uid !== 'demo') {
+      try { await markNotificationRead(notif.id); } catch { /* ignore */ }
+    }
+    setNotifications(prev => prev.filter(n => n.id !== notif.id));
+  };
 
   const title = PAGE_TITLES[activeRoute] || { en: 'Krishi Mitra', hi: 'कृषि Mitra' };
 
@@ -65,26 +88,41 @@ export default function Navbar() {
         <div className="notif-wrap">
           <button
             className="icon-action-btn"
-            onClick={() => setShowAlerts(!showAlerts)}
+            onClick={() => setShowNotifs(!showNotifs)}
             aria-label="Notifications"
           >
             🔔
-            <span className="notif-dot" />
+            {unreadCount > 0 && (
+              <span className="notif-count-badge">{unreadCount}</span>
+            )}
+            {unreadCount === 0 && <span className="notif-dot" />}
           </button>
-          {showAlerts && (
+          {showNotifs && (
             <div className="notif-dropdown">
               <div className="notif-header">
-                <span>Alerts</span>
-                <span className="badge badge-red">{MOCK_ALERTS.length}</span>
+                <span>Notifications</span>
+                {unreadCount > 0 && <span className="badge badge-red">{unreadCount}</span>}
               </div>
-              {MOCK_ALERTS.map(a => (
-                <div key={a.id} className={`notif-item notif-${a.type}`}>
-                  <span className="notif-dot-type">
-                    {a.type === 'warning' ? '⚠️' : a.type === 'success' ? '✅' : 'ℹ️'}
-                  </span>
+              {notifications.length === 0 ? (
+                <div className="notif-empty">
+                  <span>🔕</span>
+                  <p>No new notifications</p>
+                  <span className="hindi" style={{ fontSize: 11 }}>कोई नई सूचना नहीं</span>
+                </div>
+              ) : notifications.map(n => (
+                <div
+                  key={n.id}
+                  className="notif-item notif-info"
+                  onClick={() => handleNotifClick(n)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className="notif-dot-type">{NOTIF_ICONS[n.type] || '🔔'}</span>
                   <div>
-                    <p>{a.text}</p>
-                    <span className="notif-time">{a.time}</span>
+                    <p style={{ fontWeight: 600, marginBottom: 2 }}>{n.title}</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{n.body}</p>
+                    <span className="notif-time">
+                      {n.createdAt?.toDate ? n.createdAt.toDate().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -95,7 +133,7 @@ export default function Navbar() {
         {/* Profile avatar pill */}
         <div className="navbar-profile">
           <div className="avatar avatar-sm">
-            {demoRole === 'farmer' ? '👨‍🌾' : demoRole === 'expert' ? '👨‍🏫' : demoRole === 'buyer' ? '🏪' : '⚙️'}
+            {demoRole === 'farmer' ? '👨‍🌾' : demoRole === 'expert' ? '👨‍🏫' : demoRole === 'buyer' ? '🏪' : demoRole === 'worker' ? '👷' : '⚙️'}
           </div>
           <div className="navbar-profile-text">
             <span className="navbar-profile-name">Demo User</span>

@@ -25,10 +25,15 @@ const BUYER_ROUTES = [
   { id: 'farm-profile',       label: 'My Account',    labelHi: 'खाता',         icon: '👤' },
 ];
 const ADMIN_ROUTES = [
-  { id: 'admin',           label: 'Admin Panel',    labelHi: 'एडमिन',          icon: '⚙️' },
+  { id: 'admin',             label: 'Admin Panel',      labelHi: 'एडमिन',          icon: '⚙️' },
+];
+const WORKER_ROUTES = [
+  { id: 'worker-dashboard',  label: 'Worker Dashboard', labelHi: 'श्रमिक डैशबोर्ड', icon: '📊' },
+  { id: 'worker-register',   label: 'Register Worker',  labelHi: 'पंजीकरण',         icon: '📝' },
+  { id: 'farm-profile',      label: 'My Profile',       labelHi: 'प्रोफ़ाइल',        icon: '👤' },
 ];
 
-const ROUTE_MAP = { farmer: FARMER_ROUTES, expert: EXPERT_ROUTES, buyer: BUYER_ROUTES, admin: ADMIN_ROUTES };
+const ROUTE_MAP = { farmer: FARMER_ROUTES, expert: EXPERT_ROUTES, buyer: BUYER_ROUTES, admin: ADMIN_ROUTES, worker: WORKER_ROUTES };
 
 export default function Sidebar() {
   const { activeRoute, navigate, logout, demoRole, setDemoRole, setSidebarOpen, sidebarOpen } = useApp();
@@ -55,16 +60,16 @@ export default function Sidebar() {
         <div className="role-switcher">
           <span className="role-label">Role Switch (Demo)</span>
           <div className="role-btns">
-            {['farmer','expert','buyer','admin'].map(r => (
-              <button
-                key={r}
-                className={`role-btn ${demoRole === r ? 'active' : ''}`}
-                onClick={() => { setDemoRole(r); navigate(ROUTE_MAP[r][0].id); }}
-              >
-                {r === 'farmer' ? '👨‍🌾' : r === 'expert' ? '👨‍🏫' : r === 'buyer' ? '🏪' : '⚙️'}
-                <span>{r.charAt(0).toUpperCase() + r.slice(1)}</span>
-              </button>
-            ))}
+            {['farmer','expert','buyer','admin','worker'].map(r => (
+            <button
+              key={r}
+              className={`role-btn ${demoRole === r ? 'active' : ''}`}
+              onClick={() => { setDemoRole(r); navigate(ROUTE_MAP[r][0].id); }}
+            >
+              {r === 'farmer' ? '👨‍🌾' : r === 'expert' ? '👨‍🏫' : r === 'buyer' ? '🏪' : r === 'worker' ? '👷' : '⚙️'}
+              <span>{r.charAt(0).toUpperCase() + r.slice(1)}</span>
+            </button>
+          ))}
           </div>
         </div>
 

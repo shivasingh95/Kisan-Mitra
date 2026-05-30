@@ -1,0 +1,131 @@
+/* ═══════════════════════════════════════════════════════════════
+   FarmerJobPost.css — Job posting form styles
+═══════════════════════════════════════════════════════════════ */
+
+.fjp-wrap { display: flex; flex-direction: column; gap: 20px; }
+
+.fjp-heading { padding: 0 4px; }
+.fjp-title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-900);
+  margin-bottom: 4px;
+}
+.fjp-sub { font-size: var(--text-base); color: var(--text-muted); }
+.fjp-hi-label { font-size: var(--text-xs); color: var(--text-light); font-weight: 400; margin-left: 4px; }
+
+.fjp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.fjp-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .fjp-row-2 { grid-template-columns: 1fr; }
+}
+
+/* GPS row */
+.fjp-gps-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.fjp-gps-row .form-input { flex: 1; }
+.fjp-gps-btn { flex-shrink: 0; padding: 0 14px; font-size: 1.1rem; }
+
+/* Textarea */
+.fjp-textarea { resize: vertical; min-height: 80px; }
+
+/* ── Cost Calculator ── */
+.fjp-cost-calc {
+  background: linear-gradient(135deg, #EDF7F1, #D5F0E0);
+  border: 1px solid #BBE5CB;
+  border-radius: 16px;
+  padding: 16px 20px;
+  animation: scaleIn 0.3s var(--ease-spring);
+}
+
+.fjp-cost-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #186E3C;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fjp-cost-title .hindi { font-size: var(--text-xs); color: #6B9E80; }
+
+.fjp-cost-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.fjp-cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--text-700);
+}
+.fjp-cost-row strong { font-weight: 700; color: var(--text-900); }
+
+.fjp-cost-fee span  { color: var(--text-muted); }
+.fjp-cost-fee strong { color: var(--warning); }
+
+.fjp-cost-divider {
+  height: 1px;
+  background: rgba(40, 168, 93, 0.2);
+}
+
+.fjp-cost-total {
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+.fjp-cost-total strong {
+  font-size: var(--text-xl);
+  color: #186E3C;
+}
+
+/* ── Success State ── */
+.fjp-success {
+  text-align: center;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: scaleIn 0.4s var(--ease-spring);
+}
+
+.fjp-success-icon {
+  font-size: 4rem;
+  animation: bounceIn 0.6s var(--ease-bounce);
+}
+
+.fjp-success h2 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-900);
+}
+
+.fjp-success p {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+
+.fjp-success-budget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #EDF7F1;
+  border-radius: 12px;
+  padding: 16px 32px;
+  margin: 8px 0;
+}
+.fjp-success-budget span { font-size: var(--text-sm); color: var(--text-muted); }
+.fjp-success-budget strong { font-size: var(--text-2xl); color: #186E3C; font-weight: 800; }

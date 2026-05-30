@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════════════════════
+   WorkerProfileCard.css — Labour Network worker card styles
+   Follows KrishanMitra glassmorphism design system exactly
+═══════════════════════════════════════════════════════════════ */
+
+.wpc-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(15, 45, 26, 0.10);
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.wpc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #28A85D, #74C69D);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.wpc-card:hover::before { opacity: 1; }
+.wpc-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 45, 26, 0.14);
+}
+
+.wpc-compact { padding: 14px 16px; }
+
+/* ── Header ── */
+.wpc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.wpc-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #28A85D, #186E3C);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(40, 168, 93, 0.35);
+  letter-spacing: 0.5px;
+}
+
+.wpc-identity { flex: 1; min-width: 0; }
+.wpc-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0F2D1A;
+  line-height: 1.2;
+}
+.wpc-name-hi {
+  font-size: 0.72rem;
+  color: #6B9E80;
+  margin-top: 1px;
+}
+.wpc-location {
+  font-size: 0.78rem;
+  color: #6B9E80;
+  margin-top: 4px;
+}
+
+.wpc-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.wpc-badge-verified {
+  background: #D5F0E0;
+  color: #186E3C;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wpc-badge-pending {
+  background: #FEF3C7;
+  color: #92400E;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wpc-app-status {
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wpc-status-pending  { background: #FEF3C7; color: #92400E; }
+.wpc-status-accepted { background: #D5F0E0; color: #186E3C; }
+.wpc-status-rejected { background: #FEE2E2; color: #991B1B; }
+
+/* ── Skills ── */
+.wpc-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.wpc-skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #EDF7F1;
+  color: #1D8A4A;
+  border: 1px solid #BBE5CB;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.wpc-skill-tag:hover {
+  background: #D5F0E0;
+  border-color: #28A85D;
+}
+
+.wpc-skill-hi {
+  font-size: 0.68rem;
+  color: #6B9E80;
+  margin-left: 2px;
+}
+
+/* ── Stats ── */
+.wpc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: #EDF7F1;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 14px;
+}
+
+.wpc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.wpc-stat-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0F2D1A;
+  white-space: nowrap;
+}
+
+.wpc-stat-lbl {
+  font-size: 0.65rem;
+  color: #6B9E80;
+  text-align: center;
+  font-weight: 500;
+}
+
+.wpc-stat-lbl .hindi {
+  display: block;
+  font-size: 0.65rem;
+}
+
+/* ── Applied date ── */
+.wpc-applied {
+  font-size: 0.75rem;
+  color: #6B9E80;
+  margin-bottom: 10px;
+}
+
+/* ── Action buttons ── */
+.wpc-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.wpc-btn-accept { flex: 1; }
+.wpc-btn-reject { flex: 0 0 auto; }
+
+/* ── Compact mode adjustments ── */
+.wpc-compact .wpc-stats {
+  grid-template-columns: repeat(3, 1fr);
+  padding: 8px;
+}
+.wpc-compact .wpc-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+  .wpc-stats { grid-template-columns: repeat(2, 1fr); }
+  .wpc-header { flex-wrap: wrap; }
+  .wpc-badges { flex-direction: row; flex-wrap: wrap; }
+}

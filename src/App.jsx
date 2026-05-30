@@ -30,6 +30,10 @@ import MarketplaceBrowse from './pages/buyer/MarketplaceBrowse.jsx';
 // Pages — Admin
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 
+// Pages — Worker
+import WorkerRegistration from './pages/WorkerRegistration.jsx';
+import WorkerDashboard   from './pages/WorkerDashboard.jsx';
+
 // ── Toast Component ───────────────────────────────────────────
 function Toast() {
   const { toast } = useApp();
@@ -64,6 +68,8 @@ function PageRouter() {
       case 'expert-connect':   return <ExpertConnect navigate={navigate} />;
       case 'fintech':          return <FinTech />;
       case 'farm-profile':     return <FarmProfile />;
+      case 'worker-register':  return <WorkerRegistration />;
+      case 'worker-dashboard': return <WorkerDashboard />;
       default:                 return <HomeDashboard navigate={navigate} />;
     }
   }
@@ -92,6 +98,16 @@ function PageRouter() {
   // Admin
   if (demoRole === 'admin') {
     return <AdminDashboard />;
+  }
+
+  // Worker
+  if (demoRole === 'worker') {
+    switch (activeRoute) {
+      case 'worker-dashboard':  return <WorkerDashboard />;
+      case 'worker-register':   return <WorkerRegistration />;
+      case 'farm-profile':      return <FarmProfile />;
+      default:                  return <WorkerDashboard />;
+    }
   }
 
   return <HomeDashboard navigate={navigate} />;
