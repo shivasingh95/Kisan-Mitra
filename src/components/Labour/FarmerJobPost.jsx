@@ -26,6 +26,7 @@ export default function FarmerJobPost({ onJobPosted }) {
   const [gpsPos, setGpsPos] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // ── Live cost calculation ──────────────────────────────────
   const durationDays = (() => {
@@ -37,7 +38,10 @@ export default function FarmerJobPost({ onJobPosted }) {
   const platformFee  = Math.round(baseCost * PLATFORM_FEE_PCT / 100);
   const totalBudget  = baseCost + platformFee;
 
-  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+  const set = (key, val) => {
+    setForm(f => ({ ...f, [key]: val }));
+    if (errors[key]) setErrors(e => ({ ...e, [key]: null }));
+  };
 
   // ── GPS auto-detect ────────────────────────────────────────
   const detectGPS = () => {
@@ -59,10 +63,23 @@ export default function FarmerJobPost({ onJobPosted }) {
   // ── Submit ─────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.cropType || !form.jobType || !form.district || durationDays <= 0) {
-      showToast('Please fill all required fields', 'warning');
+    
+    const newErrors = {};
+    if (!form.cropType) newErrors.cropType = 'Select a crop type';
+    if (!form.jobType) newErrors.jobType = 'Select a job type';
+    if (!form.district) newErrors.district = 'Select a district';
+    if (form.workersNeeded < 1) newErrors.workersNeeded = 'Must be at least 1';
+    if (form.dailyRateOffered < 100) newErrors.dailyRateOffered = 'Minimum rate is ₹100';
+    if (!form.startDate) newErrors.startDate = 'Start date is required';
+    if (!form.endDate) newErrors.endDate = 'End date is required';
+    if (durationDays <= 0) newErrors.endDate = 'End date must be after start date';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      showToast('Please fix the errors to continue', 'warning');
       return;
     }
+    
     setSubmitting(true);
     try {
       const farmerId = currentUser?.id || currentUser?.uid || 'demo_farmer';
@@ -129,16 +146,16 @@ export default function FarmerJobPost({ onJobPosted }) {
               Crop Type <span className="hindi fjp-hi-label">फसल का प्रकार</span>
             </label>
             <select
-              className="form-input form-select"
+              className={`form-input form-select ${errors.cropType ? 'input-error' : ''}`}
               value={form.cropType}
               onChange={e => set('cropType', e.target.value)}
-              required
             >
               <option value="">Select crop…</option>
               {CROP_TYPES.map(c => (
                 <option key={c.id} value={c.id}>{c.icon} {c.label} — {c.hindi}</option>
               ))}
             </select>
+            {errors.cropType && <span className="form-error">{errors.cropType}</span>}
           </div>
 
           <div className="form-group">
@@ -146,16 +163,16 @@ export default function FarmerJobPost({ onJobPosted }) {
               Job Type <span className="hindi fjp-hi-label">काम का प्रकार</span>
             </label>
             <select
-              className="form-input form-select"
+              className={`form-input form-select ${errors.jobType ? 'input-error' : ''}`}
               value={form.jobType}
               onChange={e => set('jobType', e.target.value)}
-              required
             >
               <option value="">Select job type…</option>
               {SKILLS.map(s => (
                 <option key={s.id} value={s.id}>{s.icon} {s.label} — {s.hindi}</option>
               ))}
             </select>
+            {errors.jobType && <span className="form-error">{errors.jobType}</span>}
           </div>
         </div>
 
@@ -167,11 +184,11 @@ export default function FarmerJobPost({ onJobPosted }) {
             </label>
             <input
               type="number" min="1" max="100"
-              className="form-input"
+              className={`form-input ${errors.workersNeeded ? 'input-error' : ''}`}
               value={form.workersNeeded}
               onChange={e => set('workersNeeded', e.target.value)}
-              required
             />
+            {errors.workersNeeded && <span className="form-error">{errors.workersNeeded}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">
@@ -179,11 +196,11 @@ export default function FarmerJobPost({ onJobPosted }) {
             </label>
             <input
               type="number" min="100" step="50"
-              className="form-input"
+              className={`form-input ${errors.dailyRateOffered ? 'input-error' : ''}`}
               value={form.dailyRateOffered}
               onChange={e => set('dailyRateOffered', e.target.value)}
-              required
             />
+            {errors.dailyRateOffered && <span className="form-error">{errors.dailyRateOffered}</span>}
           </div>
         </div>
 
@@ -195,12 +212,12 @@ export default function FarmerJobPost({ onJobPosted }) {
             </label>
             <input
               type="date"
-              className="form-input"
+              className={`form-input ${errors.startDate ? 'input-error' : ''}`}
               value={form.startDate}
               min={new Date().toISOString().split('T')[0]}
               onChange={e => set('startDate', e.target.value)}
-              required
             />
+            {errors.startDate && <span className="form-error">{errors.startDate}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">
@@ -208,12 +225,12 @@ export default function FarmerJobPost({ onJobPosted }) {
             </label>
             <input
               type="date"
-              className="form-input"
+              className={`form-input ${errors.endDate ? 'input-error' : ''}`}
               value={form.endDate}
               min={form.startDate || new Date().toISOString().split('T')[0]}
               onChange={e => set('endDate', e.target.value)}
-              required
             />
+            {errors.endDate && <span className="form-error">{errors.endDate}</span>}
           </div>
         </div>
 
@@ -224,14 +241,14 @@ export default function FarmerJobPost({ onJobPosted }) {
               District <span className="hindi fjp-hi-label">जिला</span>
             </label>
             <select
-              className="form-input form-select"
+              className={`form-input form-select ${errors.district ? 'input-error' : ''}`}
               value={form.district}
               onChange={e => set('district', e.target.value)}
-              required
             >
               <option value="">Select district…</option>
               {MP_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
+            {errors.district && <span className="form-error">{errors.district}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">

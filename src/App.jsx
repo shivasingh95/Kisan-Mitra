@@ -1,7 +1,7 @@
 // src/App.jsx — Krishi Mitra Root Router
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext.jsx';
-
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 // Styles
 import './styles/variables.css';
 import './styles/animations.css';
@@ -34,6 +34,12 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import WorkerRegistration from './pages/WorkerRegistration.jsx';
 import WorkerDashboard   from './pages/WorkerDashboard.jsx';
 
+// Pages — Equipment Owner
+import EquipmentRental from './pages/farmer/EquipmentRental.jsx';
+
+// Pages — System Overview
+import SystemOverview from './pages/SystemOverview.jsx';
+
 // ── Toast Component ───────────────────────────────────────────
 function Toast() {
   const { toast } = useApp();
@@ -64,12 +70,13 @@ function PageRouter() {
       case 'crop-doctor':      return <CropDoctor />;
       case 'marketplace-sell': return <MarketplaceSell navigate={navigate} />;
       case 'labour-hire':      return <LabourHire />;
-      case 'equipment-rent':   return <LabourHire />;
+      case 'equipment-rent':   return <EquipmentRental />;
       case 'expert-connect':   return <ExpertConnect navigate={navigate} />;
       case 'fintech':          return <FinTech />;
       case 'farm-profile':     return <FarmProfile />;
       case 'worker-register':  return <WorkerRegistration />;
       case 'worker-dashboard': return <WorkerDashboard />;
+      case 'system-overview':  return <SystemOverview />;
       default:                 return <HomeDashboard navigate={navigate} />;
     }
   }
@@ -106,7 +113,18 @@ function PageRouter() {
       case 'worker-dashboard':  return <WorkerDashboard />;
       case 'worker-register':   return <WorkerRegistration />;
       case 'farm-profile':      return <FarmProfile />;
+      case 'system-overview':   return <SystemOverview />;
       default:                  return <WorkerDashboard />;
+    }
+  }
+
+  // Equipment Owner
+  if (demoRole === 'owner') {
+    switch (activeRoute) {
+      case 'equipment-rent':   return <EquipmentRental />;
+      case 'system-overview':  return <SystemOverview />;
+      case 'farm-profile':     return <FarmProfile />;
+      default:                 return <EquipmentRental />;
     }
   }
 
@@ -147,7 +165,9 @@ function AppInner() {
 export default function App() {
   return (
     <AppProvider>
-      <AppInner />
+      <ErrorBoundary>
+        <AppInner />
+      </ErrorBoundary>
     </AppProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import './Navbar.css';
 import { getWeather } from '../../services/weather';
@@ -36,9 +36,24 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
 
+  const notifRef = useRef(null);
+
   // ── Weather ────────────────────────────────────────────────
   useEffect(() => {
     getWeather('Bhopal').then(data => { if (data) setWeatherData(data); });
+  }, []);
+
+  // ── Outside Click for Notifs ───────────────────────────────
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifs(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   // ── Live Firestore notifications ───────────────────────────
@@ -85,7 +100,7 @@ export default function Navbar() {
         </div>
 
         {/* Notifications */}
-        <div className="notif-wrap">
+        <div className="notif-wrap" ref={notifRef}>
           <button
             className="icon-action-btn"
             onClick={() => setShowNotifs(!showNotifs)}

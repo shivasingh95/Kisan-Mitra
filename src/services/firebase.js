@@ -5,12 +5,12 @@ import { getFirestore }  from 'firebase/firestore';
 // NOTE: Storage is intentionally NOT imported — free Spark plan is fine for auth + Firestore
 
 const firebaseConfig = {
-  apiKey:            "AIzaSyDRMDxfj-l3Ib4G_CZRKvdphbu77xh7wwQ",
-  authDomain:        "krishi-mitra-f60c6.firebaseapp.com",
-  projectId:         "krishi-mitra-f60c6",
-  storageBucket:     "krishi-mitra-f60c6.firebasestorage.app",
-  messagingSenderId: "974756163646",
-  appId:             "1:974756163646:web:b92a95d6d6ecc82240616f",
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

@@ -75,6 +75,7 @@ export default function CropDoctor() {
   const [scanLine, setScanLine] = useState(0);
   const [history, setHistory] = useState([]);
   const fileRef = useRef();
+  const scanIntervalRef = useRef(null);
 
   // Load scan history from Firestore on mount
   useEffect(() => {
@@ -84,14 +85,22 @@ export default function CropDoctor() {
       .catch(() => {}); // silently fail if offline
   }, [firebaseUser]);
 
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+      if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
+    };
+  }, [preview]);
+
   // ── Real AI analysis ─────────────────────────────────────
   const runAnalysis = async (file) => {
     setStage('analyzing');
     // Animate scan line while waiting
-    const iv = setInterval(() => setScanLine(l => (l + 2) % 100), 30);
+    if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
+    scanIntervalRef.current = setInterval(() => setScanLine(l => (l + 2) % 100), 30);
     try {
       const aiResult = await analyzeCropImage(file);
-      clearInterval(iv);
+      clearInterval(scanIntervalRef.current);
       setResult(aiResult);
       setStage('result');
       // Save to Firestore (only for real users, not demo)
@@ -107,7 +116,7 @@ export default function CropDoctor() {
         setHistory(updated);
       }
     } catch (err) {
-      clearInterval(iv);
+      clearInterval(scanIntervalRef.current);
       console.error('AI analysis failed:', err);
       setStage('idle');
       showToast('AI analysis failed. Check internet & retry.', 'error');
@@ -115,15 +124,30 @@ export default function CropDoctor() {
   };
 
   const handleFile = (file) => {
-    if (!file?.type.startsWith('image/')) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
       showToast('Please upload an image file (JPG, PNG, WEBP)', 'error');
       return;
     }
+    const maxSize = 20 * 1024 * 1024; // 20 MB
+    if (file.size > maxSize) {
+      showToast('File size must be less than 20 MB', 'error');
+      return;
+    }
+    if (preview) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
     runAnalysis(file); // pass actual File object to Gemini
   };
 
-  const reset = () => { setStage('idle'); setResult(null); setPreview(null); setActiveTab('treatment'); };
+  const reset = () => { 
+    setStage('idle'); 
+    setResult(null); 
+    if (preview) {
+      URL.revokeObjectURL(preview);
+      setPreview(null); 
+    }
+    setActiveTab('treatment'); 
+  };
 
   return (
     <div className="crop-doctor anim-page">

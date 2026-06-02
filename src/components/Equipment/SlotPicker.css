@@ -1,0 +1,185 @@
+/* src/components/Equipment/SlotPicker.css */
+
+.sp-wrap {
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--primary-ghost);
+  animation: spIn 0.25s var(--ease-spring);
+}
+@keyframes spIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.sp-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Date input */
+.sp-row { margin-bottom: 12px; }
+.sp-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+.sp-date-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: #fff;
+  font-size: var(--text-sm);
+  color: var(--text-900);
+  font-family: var(--font-body);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sp-date-input:focus { border-color: var(--primary); }
+
+/* Slot chips */
+.sp-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.sp-slot-btn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: #fff;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-700);
+  transition: var(--transition-fast);
+}
+.sp-slot-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.sp-slot-btn.selected {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* Hours input */
+.sp-hours-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sp-hours-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: #fff;
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition-fast);
+  line-height: 1;
+}
+.sp-hours-btn:hover { background: var(--primary); color: #fff; }
+.sp-hours-val {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--primary);
+  min-width: 36px;
+  text-align: center;
+}
+.sp-hours-lbl {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Price breakdown */
+.sp-price-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+}
+.sp-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.sp-price-row:last-child { margin-bottom: 0; }
+.sp-price-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+.sp-price-total {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-900);
+}
+
+/* Escrow note */
+.sp-escrow-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.sp-escrow-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #16A34A;
+  flex-shrink: 0;
+}
+
+/* Action buttons */
+.sp-actions {
+  display: flex;
+  gap: 8px;
+}
+.sp-confirm-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: 9px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.sp-confirm-btn:hover:not(:disabled) {
+  box-shadow: 0 5px 16px rgba(45,106,79,0.35);
+  transform: translateY(-1px);
+}
+.sp-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sp-cancel-btn {
+  padding: 11px 16px;
+  border-radius: 9px;
+  border: 1.5px solid var(--border-color);
+  background: #fff;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.sp-cancel-btn:hover { border-color: var(--primary); color: var(--primary); }

@@ -17,6 +17,22 @@ a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 input, textarea, select { font-family: inherit; }
 
+/* ── Accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs);
+}
+
 /* Hindi text */
 .hindi { font-family: var(--font-hindi); }
 
@@ -483,7 +499,7 @@ input, textarea, select { font-family: inherit; }
 .text-center { text-align: center; }
 .w-full { width: 100%; }
 .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .live-dot { display: inline-block; width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: liveDot 1.5s infinite; }
 .mr-2 { margin-right: var(--space-2); }
 

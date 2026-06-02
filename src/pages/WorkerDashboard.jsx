@@ -1,4 +1,4 @@
-// src/pages/WorkerDashboard.jsx — Worker portal with 3 tabs
+// src/pages/WorkerDashboard.jsx — Worker portal with 3 tabs + attendance + escrow
 import React, { useState, useEffect, useCallback } from 'react';
 import './WorkerDashboard.css';
 import { useApp } from '../context/AppContext.jsx';
@@ -12,9 +12,26 @@ const TABS = [
 ];
 
 const STATUS_BADGES = {
-  pending:  { label: '🟡 Pending',  cls: 'wd-badge-pending'  },
-  accepted: { label: '✅ Accepted', cls: 'wd-badge-accepted' },
-  rejected: { label: '❌ Rejected', cls: 'wd-badge-rejected' },
+  pending:  { label: '🟡 Pending',   cls: 'wd-badge-pending'  },
+  accepted: { label: '✅ Accepted',  cls: 'wd-badge-accepted' },
+  rejected: { label: '❌ Rejected',  cls: 'wd-badge-rejected' },
+};
+
+// Mock accepted job for demo (shows escrow + attendance flow)
+const MOCK_ACCEPTED_JOB = {
+  jobId: 'jacc001', id: 'jacc001',
+  farmerName: 'Ramesh Patidar', farmerPhone: '+91 98765 43210',
+  cropType: 'cotton', jobType: 'harvesting',
+  workersNeeded: 12,
+  location: { village: 'Khargone', district: 'Khandwa' },
+  startDate: new Date('2026-06-05').getTime(),
+  endDate:   new Date('2026-06-07').getTime(),
+  durationDays: 3,
+  dailyRateOffered: 500,
+  escrowHeld: true,
+  escrowAmount: 18900,
+  status: 'in_progress',
+  applicants: [],
 };
 
 export default function WorkerDashboard() {
@@ -23,9 +40,10 @@ export default function WorkerDashboard() {
   const [jobs, setJobs] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [workerProfile, setWorkerProfile] = useState(null);
-  const [applied, setApplied] = useState({}); // jobId → status
-  const [loading, setLoading] = useState(true);
+  const [applied, setApplied]         = useState({}); // jobId → status
+  const [loading, setLoading]         = useState(true);
   const [applyingJob, setApplyingJob] = useState(null);
+  const [attendance, setAttendance]   = useState({}); // jobId_day → true/false
 
   const uid = firebaseUser?.uid || currentUser?.id || 'demo_worker';
   // Use demo worker w005 as the mock profile
@@ -187,15 +205,130 @@ export default function WorkerDashboard() {
       {/* ════════ MY APPLICATIONS ════════ */}
       {activeTab === 'applications' && (
         <div className="wd-applications">
+
+          {/* ── Mock accepted job showing full escrow + attendance flow ── */}
+          <div className="card wd-app-card" style={{ border: '2px solid #10B981', marginBottom: 16 }}>
+            {/* Escrow secured banner */}
+            <div style={{
+              background: 'linear-gradient(135deg, #065F46, #10B981)',
+              borderRadius: 10, padding: '12px 16px', marginBottom: 14, color: '#fff',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 22 }}>🔒</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>Payment Secured ✅</div>
+                <div style={{ fontSize: 12, opacity: 0.85 }}>
+                  ₹{MOCK_ACCEPTED_JOB.escrowAmount?.toLocaleString('en-IN')} held in Razorpay Escrow — Paisa safe hai!
+                </div>
+              </div>
+            </div>
+
+            <div className="wd-app-top" style={{ marginBottom: 12 }}>
+              <span className="wd-app-icon">{getSkill(MOCK_ACCEPTED_JOB.jobType).icon}</span>
+              <div className="wd-app-info">
+                <div className="wd-app-title">
+                  {getSkill(MOCK_ACCEPTED_JOB.jobType).label} — {MOCK_ACCEPTED_JOB.farmerName}
+                </div>
+                <div className="wd-app-meta">
+                  📍 {MOCK_ACCEPTED_JOB.location?.village}, {MOCK_ACCEPTED_JOB.location?.district}
+                  &nbsp;·&nbsp; 🌾 {MOCK_ACCEPTED_JOB.cropType}
+                  &nbsp;·&nbsp; ₹{MOCK_ACCEPTED_JOB.dailyRateOffered}/day
+                </div>
+                <div className="wd-app-meta" style={{ marginTop: 4 }}>
+                  📅 5 Jun – 7 Jun 2026 &nbsp;·&nbsp; 3 days &nbsp;·&nbsp; 👥 12 workers
+                </div>
+              </div>
+              <span className="wd-app-badge wd-badge-accepted">✅ Accepted</span>
+            </div>
+
+            {/* Farmer contact */}
+            <div className="wd-app-contact" style={{ marginBottom: 14 }}>
+              📞 Farmer: {MOCK_ACCEPTED_JOB.farmerPhone}
+              <span style={{ marginLeft: 12, color: 'var(--text-muted)', fontSize: 12 }}>
+                (shared after acceptance)
+              </span>
+            </div>
+
+            {/* Daily Attendance Marking */}
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                Daily Attendance — दैनिक उपस्थिति
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                {[1, 2, 3].map(day => {
+                  const key = `jacc001_day${day}`;
+                  const done = attendance[key];
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => setAttendance(a => ({ ...a, [key]: !done }))}
+                      style={{
+                        flex: 1, padding: '10px 8px', borderRadius: 10, border: 'none',
+                        cursor: 'pointer', fontWeight: 700, fontSize: 'var(--text-xs)',
+                        transition: 'all 0.2s',
+                        background: done
+                          ? 'linear-gradient(135deg, #065F46, #10B981)'
+                          : 'var(--bg-main)',
+                        color: done ? '#fff' : 'var(--text-muted)',
+                        boxShadow: done ? '0 4px 12px rgba(16,185,129,0.3)' : 'none',
+                      }}
+                    >
+                      {done ? '✓' : '○'} Day {day}
+                      <div style={{ fontSize: 10, marginTop: 2, opacity: 0.8 }}>
+                        {done ? 'Marked Done' : 'Mark Done'}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {Object.values({
+                d1: attendance['jacc001_day1'],
+                d2: attendance['jacc001_day2'],
+                d3: attendance['jacc001_day3'],
+              }).filter(Boolean).length === 3 && (
+                <div style={{
+                  marginTop: 10, background: '#F0FDF4', border: '1px solid #BBF7D0',
+                  borderRadius: 8, padding: '8px 12px', fontSize: 12,
+                  color: '#15803D', fontWeight: 600,
+                }}>
+                  🎉 All 3 days marked! Waiting for farmer to confirm work done.
+                  <span style={{ fontFamily: 'var(--font-hindi)', marginLeft: 6, fontWeight: 400 }}>
+                    किसान की पुष्टि का इंतज़ार…
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Expected payout */}
+            <div style={{
+              background: 'var(--bg-main)', borderRadius: 10, padding: '12px 14px', marginTop: 4,
+            }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                💰 Expected Payout
+              </div>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 'var(--text-xl)', fontWeight: 800, color: 'var(--primary)' }}>₹475</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-light)' }}>per day (95%)</div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 'var(--text-xl)', fontWeight: 800, color: 'var(--primary)' }}>₹1,425</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-light)' }}>total (3 days)</div>
+                </div>
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ fontSize: 'var(--text-xs)', color: '#7C3AED', fontWeight: 600 }}>→ Direct UPI payout</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 2 }}>after farmer confirms</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {myApplications.length === 0 && Object.keys(applied).length === 0 ? (
-            <div className="card wd-empty">
-              <span style={{ fontSize: '2.5rem' }}>📋</span>
-              <p>You haven't applied to any jobs yet.</p>
-              <span className="hindi">आपने अभी किसी काम के लिए आवेदन नहीं किया है।</span>
+            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)', fontSize: 13 }}>
+              Apply to jobs to see them here.
             </div>
           ) : (
             <>
-              {/* Show locally applied jobs */}
               {Object.entries(applied).map(([jobId, status]) => {
                 const job = jobs.find(j => (j.id || j.jobId) === jobId);
                 if (!job) return null;

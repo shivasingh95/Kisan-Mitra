@@ -1,11 +1,12 @@
-// src/pages/farmer/LabourHire.jsx — Labour & Equipment marketplace (4-tab upgrade)
+// src/pages/farmer/LabourHire.jsx — Labour marketplace (5-tab: workers, flow, post-job, my-hirings)
 import React, { useState, useEffect } from 'react';
 import './pages.css';
 import { MOCK_WORKERS, SKILLS, getSkill } from '../../data/mockWorkers';
 import { getAllWorkers } from '../../services/db';
-import FarmerJobPost    from '../../components/Labour/FarmerJobPost.jsx';
+import FarmerJobPost     from '../../components/Labour/FarmerJobPost.jsx';
 import FarmerHiringPanel from '../../components/Labour/FarmerHiringPanel.jsx';
 import WorkerProfileCard from '../../components/Labour/WorkerProfileCard.jsx';
+import LabourFlowStepper from '../../components/Labour/LabourFlowStepper.jsx';
 
 const EQUIPMENT = [
   { id: 1, name: 'John Deere Tractor', hi: 'ट्रैक्टर',   icon: '🚜', rate: 800,  unit: '/hr',   owner: 'Ram Singh',    avail: true,  loc: 'Sehore',  slots: ['8 AM – 10 AM', '2 PM – 5 PM'] },
@@ -15,10 +16,10 @@ const EQUIPMENT = [
 ];
 
 const TABS = [
-  { id: 'workers',   label: 'Find Workers',  labelHi: 'श्रमिक खोजें',    icon: '👷' },
-  { id: 'equipment', label: 'Equipment Rent',labelHi: 'उपकरण किराया',    icon: '🚜' },
-  { id: 'post-job',  label: 'Post a Job',    labelHi: 'काम पोस्ट करें',  icon: '📋' },
-  { id: 'my-hirings',label: 'My Hirings',    labelHi: 'मेरी भर्तियां',   icon: '📂' },
+  { id: 'workers',     label: 'Find Workers',  labelHi: 'श्रमिक खोजें',    icon: '👷' },
+  { id: 'flow',        label: 'How It Works',  labelHi: 'प्रवाह देखें',    icon: '🗺️' },
+  { id: 'post-job',    label: 'Post a Job',    labelHi: 'काम पोस्ट करें',  icon: '📋' },
+  { id: 'my-hirings',  label: 'My Hirings',    labelHi: 'मेरी भर्तियां',   icon: '📂' },
 ];
 
 export default function LabourHire() {
@@ -119,45 +120,9 @@ export default function LabourHire() {
         </>
       )}
 
-      {/* ════════════════ EQUIPMENT TAB ════════════════ */}
-      {activeTab === 'equipment' && (
-        <div className="grid-2">
-          {EQUIPMENT.map((eq, i) => (
-            <div key={eq.id} className={`card card-3d anim-fadeup delay-${i % 4 + 1}`}>
-              <div className="flex gap-3 items-center" style={{ marginBottom: 12 }}>
-                <span style={{ fontSize: 40 }}>{eq.icon}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 'var(--text-md)' }}>{eq.name}</div>
-                  <div className="hindi" style={{ fontSize: 12, color: 'var(--text-light)' }}>{eq.hi}</div>
-                  <span className={`badge ${eq.avail ? 'badge-green' : 'badge-gray'}`}>
-                    {eq.avail ? '● Available' : '○ Booked'}
-                  </span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 12, fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 12 }}>
-                <span>💰 ₹{eq.rate}{eq.unit}</span>
-                <span>👤 {eq.owner}</span>
-                <span>📍 {eq.loc}</span>
-              </div>
-              {eq.slots.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                  {eq.slots.map(s => (
-                    <span key={s} style={{ background: 'var(--primary-ghost)', padding: '4px 10px', borderRadius: 6, fontSize: 12, color: 'var(--primary)', fontWeight: 500 }}>
-                      🕐 {s}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <button
-                className={`btn btn-full ${booked[eq.id] ? 'btn-ghost' : 'btn-primary'}`}
-                disabled={!eq.avail || booked[eq.id]}
-                onClick={() => setBooked(b => ({ ...b, [eq.id]: true }))}
-              >
-                {booked[eq.id] ? '✓ Booked!' : eq.avail ? '📅 Book Now' : 'Unavailable'}
-              </button>
-            </div>
-          ))}
-        </div>
+      {/* ════════════════ HOW IT WORKS TAB ════════════════ */}
+      {activeTab === 'flow' && (
+        <LabourFlowStepper />
       )}
 
       {/* ════════════════ POST A JOB TAB ════════════════ */}

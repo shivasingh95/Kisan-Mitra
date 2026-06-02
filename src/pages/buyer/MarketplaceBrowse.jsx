@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './pages.css';
+import { getActiveListings } from '../../services/db';
+import { useApp } from '../../context/AppContext';
 
 const LISTINGS = [
   { id: 1, farmer: 'Ramesh Kumar', loc: 'Sehore, MP', crop: 'Wheat 🌾', qty: '20 quintal', price: 2150, organic: false, delivery: true, rating: 4.7, photo: '🌾' },
@@ -23,12 +25,34 @@ const STATUS_CFG = {
 };
 
 export default function MarketplaceBrowse() {
+  const { showToast } = useApp();
   const [tab, setTab] = useState('browse');
   const [filters, setFilters] = useState({ organic: false, delivery: false });
   const [selected, setSelected] = useState(null);
   const [ordered, setOrdered] = useState([]);
+  
+  const [listings, setListings] = useState(LISTINGS);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = LISTINGS.filter(l =>
+  useEffect(() => {
+    let mounted = true;
+    const fetchListings = async () => {
+      try {
+        const data = await getActiveListings(20);
+        if (mounted) {
+          if (data && data.length > 0) setListings(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to fetch listings', err);
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchListings();
+    return () => { mounted = false; };
+  }, []);
+
+  const filtered = listings.filter(l =>
     (!filters.organic || l.organic) &&
     (!filters.delivery || l.delivery)
   );
@@ -67,50 +91,54 @@ export default function MarketplaceBrowse() {
             <span style={{ marginLeft: 'auto', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{filtered.length} listings</span>
           </div>
 
-          <div className="grid-3">
-            {filtered.map((l, i) => (
-              <div key={l.id} className={`card card-3d anim-fadeup delay-${i % 6 + 1}`}>
-                {/* Photo */}
-                <div style={{
-                  height: 100, background: 'linear-gradient(135deg, var(--green-200), var(--green-100))',
-                  borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 56, marginBottom: 14
-                }}>
-                  {l.photo}
-                </div>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: 40 }}>Loading listings...</div>
+          ) : (
+            <div className="grid-3">
+              {filtered.map((l, i) => (
+                <div key={l.id} className={`card card-3d anim-fadeup delay-${i % 6 + 1}`}>
+                  {/* Photo */}
+                  <div style={{
+                    height: 100, background: 'linear-gradient(135deg, var(--green-200), var(--green-100))',
+                    borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 56, marginBottom: 14
+                  }}>
+                    {l.photo || '🌾'}
+                  </div>
 
-                <div className="flex justify-between items-center" style={{ marginBottom: 6 }}>
-                  <h3 style={{ fontWeight: 700 }}>{l.crop}</h3>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {l.organic && <span className="badge badge-green">🌿 Organic</span>}
-                    {l.delivery && <span className="badge badge-blue">🚚</span>}
+                  <div className="flex justify-between items-center" style={{ marginBottom: 6 }}>
+                    <h3 style={{ fontWeight: 700 }}>{l.crop}</h3>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {l.organic && <span className="badge badge-green">🌿 Organic</span>}
+                      {l.delivery && <span className="badge badge-blue">🚚</span>}
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 'var(--text-md)', fontWeight: 800, color: 'var(--primary)', marginBottom: 8 }}>
+                    ₹{l.price}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>/{l.unit || 'unit'}</span>
+                  </div>
+
+                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 12 }}>
+                    <div>👨‍🌾 {l.farmer || l.uid?.substring(0, 8)}</div>
+                    <div>📍 {l.loc || l.location || 'Unknown'}</div>
+                    <div>📦 {l.qty} available</div>
+                    {l.rating && <div>⭐ {l.rating}</div>}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      className={`btn btn-primary btn-sm btn-full ${ordered.includes(l.id) ? 'btn-ghost' : ''}`}
+                      disabled={ordered.includes(l.id)}
+                      onClick={() => setOrdered(o => [...o, l.id])}
+                    >
+                      {ordered.includes(l.id) ? '✓ Order Placed' : '🛒 Order Karo'}
+                    </button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setSelected(l)}>ℹ️</button>
                   </div>
                 </div>
-
-                <div style={{ fontSize: 'var(--text-md)', fontWeight: 800, color: 'var(--primary)', marginBottom: 8 }}>
-                  ₹{l.price}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>/unit</span>
-                </div>
-
-                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 12 }}>
-                  <div>👨‍🌾 {l.farmer}</div>
-                  <div>📍 {l.loc}</div>
-                  <div>📦 {l.qty} available</div>
-                  <div>⭐ {l.rating}</div>
-                </div>
-
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    className={`btn btn-primary btn-sm btn-full ${ordered.includes(l.id) ? 'btn-ghost' : ''}`}
-                    disabled={ordered.includes(l.id)}
-                    onClick={() => setOrdered(o => [...o, l.id])}
-                  >
-                    {ordered.includes(l.id) ? '✓ Order Placed' : '🛒 Order Karo'}
-                  </button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setSelected(l)}>ℹ️</button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 

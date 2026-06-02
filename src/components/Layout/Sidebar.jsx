@@ -12,6 +12,7 @@ const FARMER_ROUTES = [
   { id: 'expert-connect',  label: 'Expert Connect',  labelHi: 'विशेषज्ञ',      icon: '👨‍💼' },
   { id: 'fintech',         label: 'Loans & Schemes',  labelHi: 'ऋण व योजनाएं', icon: '💳' },
   { id: 'farm-profile',    label: 'My Farm Profile', labelHi: 'मेरी प्रोफ़ाइल', icon: '👤' },
+  { id: 'system-overview', label: 'System Overview', labelHi: 'सिस्टम',           icon: '🗻️' },
 ];
 const EXPERT_ROUTES = [
   { id: 'expert-home',     label: 'Dashboard',      labelHi: 'डैशबोर्ड',      icon: '📊' },
@@ -30,10 +31,16 @@ const ADMIN_ROUTES = [
 const WORKER_ROUTES = [
   { id: 'worker-dashboard',  label: 'Worker Dashboard', labelHi: 'श्रमिक डैशबोर्ड', icon: '📊' },
   { id: 'worker-register',   label: 'Register Worker',  labelHi: 'पंजीकरण',         icon: '📝' },
+  { id: 'system-overview',   label: 'System Overview',  labelHi: 'सिस्टम',           icon: '🗻️' },
   { id: 'farm-profile',      label: 'My Profile',       labelHi: 'प्रोफ़ाइल',        icon: '👤' },
 ];
+const OWNER_ROUTES = [
+  { id: 'equipment-rent',   label: 'Equipment Rental', labelHi: 'उपकरण किराया', icon: '🚜' },
+  { id: 'system-overview',  label: 'System Overview',  labelHi: 'सिस्टम',          icon: '🗻️' },
+  { id: 'farm-profile',     label: 'My Profile',       labelHi: 'प्रोफ़ाइल',       icon: '👤' },
+];
 
-const ROUTE_MAP = { farmer: FARMER_ROUTES, expert: EXPERT_ROUTES, buyer: BUYER_ROUTES, admin: ADMIN_ROUTES, worker: WORKER_ROUTES };
+const ROUTE_MAP = { farmer: FARMER_ROUTES, expert: EXPERT_ROUTES, buyer: BUYER_ROUTES, admin: ADMIN_ROUTES, worker: WORKER_ROUTES, owner: OWNER_ROUTES };
 
 export default function Sidebar() {
   const { activeRoute, navigate, logout, demoRole, setDemoRole, setSidebarOpen, sidebarOpen } = useApp();
@@ -60,13 +67,13 @@ export default function Sidebar() {
         <div className="role-switcher">
           <span className="role-label">Role Switch (Demo)</span>
           <div className="role-btns">
-            {['farmer','expert','buyer','admin','worker'].map(r => (
+            {['farmer','expert','buyer','admin','worker','owner'].map(r => (
             <button
               key={r}
               className={`role-btn ${demoRole === r ? 'active' : ''}`}
               onClick={() => { setDemoRole(r); navigate(ROUTE_MAP[r][0].id); }}
             >
-              {r === 'farmer' ? '👨‍🌾' : r === 'expert' ? '👨‍🏫' : r === 'buyer' ? '🏪' : r === 'worker' ? '👷' : '⚙️'}
+              {r === 'farmer' ? '👨‍🌾' : r === 'expert' ? '👨‍🏫' : r === 'buyer' ? '🏪' : r === 'worker' ? '👷' : r === 'owner' ? '🚜' : '⚙️'}
               <span>{r.charAt(0).toUpperCase() + r.slice(1)}</span>
             </button>
           ))}
@@ -98,7 +105,7 @@ export default function Sidebar() {
         <div className="sidebar-footer">
           <div className="sidebar-user-card">
             <div className="avatar avatar-sm" style={{ background: 'var(--primary-pale)', color: 'var(--primary)' }}>
-              {demoRole === 'farmer' ? '👨‍🌾' : demoRole === 'expert' ? '👨‍🏫' : demoRole === 'buyer' ? '🏪' : '⚙️'}
+              {demoRole === 'farmer' ? '👨‍🌾' : demoRole === 'expert' ? '👨‍🏫' : demoRole === 'buyer' ? '🏪' : demoRole === 'worker' ? '👷' : demoRole === 'owner' ? '🚜' : '⚙️'}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-900)' }}>Demo User</div>

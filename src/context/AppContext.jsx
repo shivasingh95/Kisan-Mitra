@@ -1,5 +1,4 @@
-// src/context/AppContext.jsx — Krishi Mitra global state + Firebase integration
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { auth } from '../services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getUserProfile, createUserProfile } from '../services/db';
@@ -9,25 +8,21 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   // Auth state
-  const [currentUser, setCurrentUser] = useState(null);   // Firestore profile object
-  const [firebaseUser, setFirebaseUser] = useState(null); // Firebase User object
-  const [role, setRole] = useState(null);                 // 'farmer' | 'expert' | 'buyer' | 'admin'
-  const [authStep, setAuthStep] = useState('login');      // 'login' | 'otp' | 'loading' | 'onboarding' | 'app'
-
-  // For quick role switch in demo/presentation
+  const [currentUser, setCurrentUser] = useState(null);
+  const [firebaseUser, setFirebaseUser] = useState(null);
+  const [role, setRole] = useState(null);
+  const [authStep, setAuthStep] = useState('login');
   const [demoRole, setDemoRole] = useState('farmer');
 
   // UI state
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
 
-  // ── Firebase Auth listener ─────────────────────────────────
-  // This fires whenever the user's auth state changes (login/logout/refresh)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
-        // User is signed in — load their Firestore profile
         setFirebaseUser(fbUser);
         try {
           const profile = await getUserProfile(fbUser.uid);
@@ -37,7 +32,6 @@ export function AppProvider({ children }) {
             setDemoRole(profile.role || 'farmer');
             setAuthStep('app');
           } else {
-            // New user — go to onboarding to collect name, village, role
             setAuthStep('onboarding');
           }
         } catch (e) {
@@ -45,7 +39,6 @@ export function AppProvider({ children }) {
           setAuthStep('login');
         }
       } else {
-        // User is signed out
         setFirebaseUser(null);
         setCurrentUser(null);
         setRole(null);
@@ -55,15 +48,11 @@ export function AppProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  // ── Called after OTP is verified successfully ──────────────
-  // fbUser: Firebase User object returned by verifyPhoneOTP()
-  const handleAuthSuccess = async (fbUser, onboardingData = null) => {
+  const handleAuthSuccess = useCallback(async (fbUser, onboardingData = null) => {
     setFirebaseUser(fbUser);
     try {
       let profile = await getUserProfile(fbUser.uid);
-
       if (!profile) {
-        // Brand new user — create profile in Firestore
         const newProfile = {
           phone: fbUser.phoneNumber,
           role: onboardingData?.role || 'farmer',
@@ -73,11 +62,10 @@ export function AppProvider({ children }) {
         };
         await createUserProfile(fbUser.uid, newProfile);
         profile = { id: fbUser.uid, ...newProfile };
-        setAuthStep('onboarding'); // ask for name/village etc.
+        setAuthStep('onboarding');
       } else {
         setAuthStep('app');
       }
-
       setCurrentUser(profile);
       setRole(profile.role || 'farmer');
       setDemoRole(profile.role || 'farmer');
@@ -85,19 +73,17 @@ export function AppProvider({ children }) {
       console.error('Profile load failed:', e);
       showToast('Profile load failed. Please retry.', 'error');
     }
-  };
+  }, []);
 
-  // ── Demo mode — skip real auth (for presentations) ─────────
-  const loginWithOTP = (phone, userData) => {
+  const loginWithOTP = useCallback((phone, userData) => {
     const mockProfile = { phone, ...userData, id: 'demo' };
     setCurrentUser(mockProfile);
     setRole(userData.role || 'farmer');
     setDemoRole(userData.role || 'farmer');
     setAuthStep('app');
-  };
+  }, []);
 
-  // ── Complete onboarding (save extra profile info) ──────────
-  const completeOnboarding = async (data) => {
+  const completeOnboarding = useCallback(async (data) => {
     if (firebaseUser && firebaseUser.uid !== 'demo') {
       try {
         await createUserProfile(firebaseUser.uid, {
@@ -112,51 +98,58 @@ export function AppProvider({ children }) {
       }
     }
     setAuthStep('app');
-  };
+  }, [firebaseUser]);
 
-  // ── Sign out ───────────────────────────────────────────────
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await firebaseSignOut();
-    } catch (e) {
-      // even if signout fails, clear local state
-    }
+    } catch (e) {}
     setCurrentUser(null);
     setFirebaseUser(null);
     setRole(null);
     setAuthStep('login');
     setActiveRoute('dashboard');
-  };
+  }, []);
 
-  // ── Toast notifications ────────────────────────────────────
-  const showToast = (message, type = 'success', duration = 3500) => {
+  const showToast = useCallback((message, type = 'success', duration = 3500) => {
     setToast({ message, type, id: Date.now() });
-    setTimeout(() => setToast(null), duration);
-  };
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => setToast(null), duration);
+  }, []);
 
-  const navigate = (route) => {
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
+
+  const navigate = useCallback((route) => {
     setActiveRoute(route);
     setSidebarOpen(false);
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    currentUser, setCurrentUser,
+    firebaseUser,
+    role, setRole,
+    authStep, setAuthStep,
+    handleAuthSuccess,
+    completeOnboarding,
+    loginWithOTP,
+    logout,
+    demoRole, setDemoRole,
+    sidebarOpen, setSidebarOpen,
+    activeRoute, navigate,
+    toast, showToast,
+  }), [
+    currentUser, firebaseUser, role, authStep, demoRole,
+    sidebarOpen, activeRoute, toast,
+    handleAuthSuccess, completeOnboarding, loginWithOTP,
+    logout, navigate, showToast
+  ]);
 
   return (
-    <AppContext.Provider value={{
-      // Auth
-      currentUser, setCurrentUser,
-      firebaseUser,
-      role, setRole,
-      authStep, setAuthStep,
-      handleAuthSuccess,
-      completeOnboarding,
-      loginWithOTP,
-      logout,
-      // Demo role switch
-      demoRole, setDemoRole,
-      // UI
-      sidebarOpen, setSidebarOpen,
-      activeRoute, navigate,
-      toast, showToast,
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

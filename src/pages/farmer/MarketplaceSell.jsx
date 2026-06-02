@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './pages.css';
+import { getMyListings, addListing } from '../../services/db';
+import { useApp } from '../../context/AppContext';
 
 const MANDI_PRICES = [
   { crop: 'Wheat',  emoji: '🌾', msp: 2275, current: 2150, trend: 'down', change: -35, loc: 'Bhopal',    hist: [2100,2120,2135,2130,2145,2150] },
@@ -33,18 +35,63 @@ function Sparkline({ data, color }) {
 }
 
 export default function MarketplaceSell({ navigate }) {
+  const { firebaseUser, showToast } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ crop: '', qty: '', unit: 'quintal', price: '', location: '' });
   const [listings, setListings] = useState(MY_LISTINGS);
+  const [loading, setLoading] = useState(true);
 
-  const addListing = () => {
+  useEffect(() => {
+    let mounted = true;
+    const fetchListings = async () => {
+      if (!firebaseUser?.uid || firebaseUser.uid === 'demo') {
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await getMyListings(firebaseUser.uid);
+        if (mounted) {
+          if (data && data.length > 0) setListings(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user listings', err);
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchListings();
+    return () => { mounted = false; };
+  }, [firebaseUser]);
+
+  const handleAddListing = async () => {
     if (!form.crop || !form.qty || !form.price) return;
-    setListings(prev => [...prev, {
-      id: Date.now(), crop: form.crop, qty: `${form.qty} ${form.unit}`,
-      price: +form.price, status: 'active', buyer: null, date: 'Today'
-    }]);
-    setForm({ crop: '', qty: '', unit: 'quintal', price: '', location: '' });
-    setShowAdd(false);
+    
+    const newListing = {
+      crop: form.crop,
+      qty: form.qty,
+      unit: form.unit,
+      price: +form.price,
+      location: form.location,
+      farmer: firebaseUser?.displayName || 'Unknown Farmer',
+      photo: '🌾'
+    };
+
+    try {
+      if (firebaseUser?.uid && firebaseUser.uid !== 'demo') {
+        const refId = await addListing(firebaseUser.uid, newListing);
+        setListings(prev => [{ id: refId, ...newListing, status: 'active', date: 'Today' }, ...prev]);
+        showToast('Listing added successfully!');
+      } else {
+        // Fallback for demo mode
+        setListings(prev => [{ id: Date.now(), ...newListing, status: 'active', date: 'Today' }, ...prev]);
+        showToast('Demo listing added!');
+      }
+      setForm({ crop: '', qty: '', unit: 'quintal', price: '', location: '' });
+      setShowAdd(false);
+    } catch (err) {
+      console.error('Failed to add listing', err);
+      showToast('Failed to add listing', 'error');
+    }
   };
 
   return (
@@ -165,7 +212,7 @@ export default function MarketplaceSell({ navigate }) {
                 <input className="form-input" placeholder="e.g. Sehore" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
               </div>
               <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-                <button className="btn btn-primary btn-full" onClick={addListing}>✓ Listing Banao</button>
+                <button className="btn btn-primary btn-full" onClick={handleAddListing}>✓ Listing Banao</button>
                 <button className="btn btn-ghost" onClick={() => setShowAdd(false)}>Cancel</button>
               </div>
             </div>

@@ -18,7 +18,11 @@ export default function WorkerRegistration() {
     skills: [], dailyRate: 500, groupSize: 1,
     availableFrom: '', availableTo: '', lat: null, lng: null,
   });
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const [errors, setErrors] = useState({});
+  const set = (k, v) => {
+    setForm(f => ({ ...f, [k]: v }));
+    if (errors[k]) setErrors(e => ({ ...e, [k]: null }));
+  };
   const toggleSkill = id => set('skills', form.skills.includes(id) ? form.skills.filter(s => s !== id) : [...form.skills, id]);
 
   const detectGPS = () => {
@@ -95,7 +99,8 @@ export default function WorkerRegistration() {
             </div>
             <div className="form-group">
               <label className="form-label">Phone <span className="hindi wreg-hi">मोबाइल</span></label>
-              <input className="form-input" placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} />
+              <input className={`form-input ${errors.phone ? 'input-error' : ''}`} placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => set('phone', e.target.value)} />
+              {errors.phone && <span className="form-error">{errors.phone}</span>}
             </div>
             <div className="wreg-row-2">
               <div className="form-group">
@@ -118,8 +123,11 @@ export default function WorkerRegistration() {
             </div>
             <div className="form-group">
               <label className="form-label">Aadhaar Number <span className="hindi wreg-hi">आधार नंबर</span></label>
-              <input className="form-input" placeholder="XXXX XXXX XXXX" maxLength={14} value={form.aadhaar} onChange={e => set('aadhaar', e.target.value)} />
-              <span className="form-hint">🔒 Stored encrypted. Verification within 24h.</span>
+              <input className={`form-input ${errors.aadhaar ? 'input-error' : ''}`} placeholder="XXXX XXXX XXXX" maxLength={14} value={form.aadhaar} onChange={e => {
+                const val = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+                set('aadhaar', val);
+              }} />
+              {errors.aadhaar ? <span className="form-error">{errors.aadhaar}</span> : <span className="form-hint">🔒 Stored encrypted. Verification within 24h.</span>}
             </div>
           </div>
         )}
@@ -195,7 +203,23 @@ export default function WorkerRegistration() {
           {step > 1 && <button className="btn btn-ghost" onClick={() => setStep(s => s - 1)}>← Back</button>}
           {step < 3 ? (
             <button className="btn btn-primary" onClick={() => {
-              if (step === 1 && (!form.name || !form.district)) { showToast('Fill name and district', 'warning'); return; }
+              if (step === 1) {
+                const newErrors = {};
+                if (!form.name) newErrors.name = 'Name is required';
+                if (!form.district) newErrors.district = 'District is required';
+                
+                const phoneDigits = form.phone.replace(/\D/g, '');
+                if (phoneDigits.length < 10) newErrors.phone = 'Enter a valid 10-digit phone number';
+                
+                const aadhaarDigits = form.aadhaar.replace(/\D/g, '');
+                if (aadhaarDigits.length !== 12) newErrors.aadhaar = 'Aadhaar must be exactly 12 digits';
+
+                if (Object.keys(newErrors).length > 0) {
+                  setErrors(newErrors);
+                  showToast('Please fix the errors to continue', 'warning');
+                  return;
+                }
+              }
               if (step === 2 && form.skills.length === 0) { showToast('Select at least one skill', 'warning'); return; }
               setStep(s => s + 1);
             }}>Next →</button>
