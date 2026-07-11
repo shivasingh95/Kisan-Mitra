@@ -1,0 +1,25 @@
+/* src/components/ui/PageLoader.css — Suspense loading indicator */
+.page-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+.page-loader__text {
+  font-size: 0.85rem;
+  color: var(--text-muted, #4A7C59);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+@keyframes leafPulse {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.08); }
+}
+
+.leaf-pulse {
+  animation: leafPulse 1.6s ease-in-out infinite;
+}

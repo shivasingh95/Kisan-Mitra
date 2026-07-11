@@ -1,0 +1,6 @@
+/* Krishi Mitra — Global Entry CSS */
+/* Import all CSS modules in order */
+@import './variables.css';
+@import './reset.css';
+@import './animations.css';
+@import './components.css';

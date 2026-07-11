@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './pages.css';
-import { analyzeCropImage } from '../../services/cropDoctor';
-import { saveScanResult, getScanHistory } from '../../services/db';
-import { useApp } from '../../context/AppContext';
+import { analyzeCropImage } from '@/services/api/claude.service';
+import { saveScanResult, getScanHistory } from '@/services/firebase/firestore.service';
+import { useApp } from '@/context/AppContext';
 
 // Demo disease buttons (still shown on idle screen as quick examples)
 const DEMO_DISEASES = [
@@ -334,3 +334,4 @@ export default function CropDoctor() {
     </div>
   );
 }
+

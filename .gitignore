@@ -7,23 +7,48 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# ── Environment (NEVER commit secrets) ────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Firebase (local emulator, deploy config) ──────────────────
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+firebase.json
+
+# ── Editor directories and files ──────────────────────────────
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Local env files
-.env
-.env.local
-.env.*.local
+# ── OS files ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Test & coverage ───────────────────────────────────────────
+coverage/
+*.lcov
+test-results/
+playwright-report/
+
+# ── Misc ──────────────────────────────────────────────────────
+*.tsbuildinfo
+*.map

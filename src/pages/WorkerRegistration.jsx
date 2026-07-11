@@ -1,8 +1,8 @@
 // src/pages/WorkerRegistration.jsx — Worker onboarding & registration
 import React, { useState } from 'react';
 import './WorkerRegistration.css';
-import { useApp } from '../context/AppContext.jsx';
-import { registerWorker } from '../services/db';
+import { useApp } from '@/context/AppContext';
+import { registerWorker } from '@/services/firebase/firestore.service';
 import { SKILLS, MP_DISTRICTS } from '../data/mockWorkers';
 
 export default function WorkerRegistration() {
@@ -233,3 +233,4 @@ export default function WorkerRegistration() {
     </div>
   );
 }
+

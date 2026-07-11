@@ -15,8 +15,9 @@ export default async function handler(req, res) {
   }
 
   // 1. Retrieve the Pl@ntNet API Key
-  // Use Vercel Environment variable, falling back to query param if not set (highly robust)
-  const apiKey = process.env.VITE_PLANTNET_API_KEY || req.query['api-key'];
+  // Prefer server-side env var (no VITE_ prefix — never exposed to browser)
+  // Fall back to VITE_ prefixed var for backward compat
+  const apiKey = process.env.PLANTNET_API_KEY || process.env.VITE_PLANTNET_API_KEY;
 
   if (!apiKey) {
     return res.status(400).json({

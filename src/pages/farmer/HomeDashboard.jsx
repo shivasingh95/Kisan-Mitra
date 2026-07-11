@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './pages.css';
 
-import { getWeather } from '../../services/weather';
+import { useWeather } from '@/shared/hooks/useWeather';
 
 const ALERTS = [
   { type: 'warning', msg: 'भारी बारिश की संभावना — 2 दिनों में। फ़सल सुरक्षित करें।', time: '1h ago' },
@@ -50,17 +50,11 @@ function StatCard({ icon, label, labelHi, value, sub, color, delay }) {
 
 export default function HomeDashboard({ navigate }) {
   const [animPcts, setAnimPcts] = useState([0, 0, 0]);
-  const [weatherData, setWeatherData] = useState(null);
+  const { weather: weatherData } = useWeather();
 
   useEffect(() => {
     // Animate crop health bars
     const t = setTimeout(() => setAnimPcts(CROP_HEALTH.map(c => c.pct)), 400);
-    
-    // Auto-detect location via geolocation, fallback to Bhopal
-    getWeather().then(data => {
-      if (data) setWeatherData(data);
-    });
-
     return () => clearTimeout(t);
   }, []);
 
@@ -221,3 +215,4 @@ export default function HomeDashboard({ navigate }) {
     </div>
   );
 }
+

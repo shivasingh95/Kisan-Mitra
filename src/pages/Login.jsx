@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useApp } from '../context/AppContext.jsx';
-import { setupRecaptcha, sendPhoneOTP, verifyPhoneOTP } from '../services/auth.js';
+import { useApp } from '@/context/AppContext';
+import { setupRecaptcha, sendPhoneOTP, verifyPhoneOTP } from '@/services/firebase/auth.service';
 import '../styles/login.css';
 
 const FEATURES = [
@@ -205,9 +205,9 @@ export default function Login() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Mobile Number</label>
+                <label className="form-label" htmlFor="phone-input">Mobile Number</label>
                 <div className="phone-input-wrap">
-                  <span className="phone-prefix">🇮🇳 +91</span>
+                  <span className="phone-prefix" aria-hidden="true">🇮🇳 +91</span>
                   <input
                     id="phone-input"
                     type="tel"
@@ -217,9 +217,11 @@ export default function Login() {
                     onChange={handlePhone}
                     onKeyDown={e => e.key === 'Enter' && sendOTP()}
                     autoFocus
+                    aria-describedby={error ? 'phone-error' : undefined}
+                    aria-invalid={!!error}
                   />
                 </div>
-                {error && <span className="form-error">{error}</span>}
+                {error && <span className="form-error" id="phone-error" role="alert" aria-live="polite">{error}</span>}
               </div>
 
               <button id="send-otp-btn" className="btn btn-primary btn-full btn-lg" onClick={sendOTP}>
@@ -269,7 +271,7 @@ export default function Login() {
               </div>
 
               {error && (
-                <p className="form-error" style={{ marginBottom: 16 }}>{error}</p>
+                <p className="form-error" id="otp-error" role="alert" aria-live="polite" style={{ marginBottom: 16 }}>{error}</p>
               )}
 
               <button id="verify-otp-btn" className="btn btn-primary btn-full btn-lg" onClick={verifyOTP}
@@ -304,3 +306,4 @@ export default function Login() {
     </div>
   );
 }
+

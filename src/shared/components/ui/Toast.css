@@ -1,0 +1,110 @@
+/* src/components/ui/Toast.css — Glassmorphism toast notification */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-toast, 500);
+  min-width: 280px;
+  max-width: 400px;
+  border-radius: var(--border-radius-md, 16px);
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+}
+
+/* Type-based backgrounds */
+.toast-container[data-type="success"] {
+  background: rgba(22, 163, 74, 0.92);
+  color: #fff;
+}
+.toast-container[data-type="error"] {
+  background: rgba(220, 38, 38, 0.92);
+  color: #fff;
+}
+.toast-container[data-type="info"] {
+  background: rgba(37, 99, 235, 0.92);
+  color: #fff;
+}
+.toast-container[data-type="warning"] {
+  background: rgba(217, 119, 6, 0.92);
+  color: #fff;
+}
+
+/* Body */
+.toast-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+}
+
+.toast-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.toast-dismiss {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.toast-dismiss:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Progress bar */
+.toast-progress {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.toast-progress-bar {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: width 0.1s linear;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Animations */
+.toast-enter {
+  animation: toastSlideIn 0.35s var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+.toast-exit {
+  animation: toastSlideOut 0.3s ease-in both;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%) scale(0.9);
+  }
+}

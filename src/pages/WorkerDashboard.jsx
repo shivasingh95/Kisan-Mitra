@@ -1,8 +1,8 @@
 // src/pages/WorkerDashboard.jsx — Worker portal with 3 tabs + attendance + escrow
 import React, { useState, useEffect, useCallback } from 'react';
 import './WorkerDashboard.css';
-import { useApp } from '../context/AppContext.jsx';
-import { getAllOpenJobs, applyToJob, getWorkerTransactions, getWorkerByUid } from '../services/db';
+import { useApp } from '@/context/AppContext';
+import { getAllOpenJobs, applyToJob, getWorkerTransactions, getWorkerByUid } from '@/services/firebase/firestore.service';
 import { MOCK_JOBS, MOCK_WORKERS, getSkill } from '../data/mockWorkers';
 
 const TABS = [
@@ -409,3 +409,4 @@ export default function WorkerDashboard() {
     </div>
   );
 }
+

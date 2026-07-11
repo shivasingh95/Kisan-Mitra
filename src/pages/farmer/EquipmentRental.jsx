@@ -7,8 +7,8 @@ import {
   EQUIPMENT_TYPES, OWNER_SOURCES, getEquipmentType
 } from '../../data/mockEquipment';
 import { MP_DISTRICTS } from '../../data/mockWorkers';
-import EquipmentCard from '../../components/Equipment/EquipmentCard';
-import { useApp } from '../../context/AppContext.jsx';
+import EquipmentCard from '@/features/equipment/components/EquipmentCard';
+import { useApp } from '@/context/AppContext';
 
 const TABS = [
   { id: 'search',        label: 'Search Equipment', labelHi: 'उपकरण खोजें',    icon: '🔍' },
@@ -637,3 +637,4 @@ export default function EquipmentRental() {
     </div>
   );
 }
+

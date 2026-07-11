@@ -1,0 +1,194 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════════════════════════════
+//  Krishi Mitra — Firestore Security Rules
+//  Last updated: 2026-07-11
+// ═══════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function hasRole(role) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    // Validates that only allowed fields are being written
+    function hasOnly(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Validates string field length
+    function validString(field, maxLen) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() <= maxLen;
+    }
+
+    // ── USER PROFILES ───────────────────────────────────────────
+    match /users/{userId} {
+      // Anyone signed in can read any user profile (for marketplace, expert cards, etc.)
+      allow read: if isSignedIn();
+
+      // Users can only create/update their own profile
+      allow create: if isOwner(userId) &&
+        hasOnly(['phone', 'name', 'village', 'district', 'state', 'role',
+                 'landAcres', 'primaryCrops', 'createdAt']) &&
+        validString('name', 100) &&
+        validString('village', 100) &&
+        validString('state', 50);
+
+      allow update: if isOwner(userId) &&
+        hasOnly(['phone', 'name', 'village', 'district', 'state', 'role',
+                 'landAcres', 'primaryCrops', 'updatedAt', 'createdAt']) &&
+        validString('name', 100);
+
+      // Only admins can delete user profiles
+      allow delete: if isAdmin();
+    }
+
+    // ── CROP SCAN HISTORY ───────────────────────────────────────
+    match /scans/{scanId} {
+      // Users can only read their own scans
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+
+      // Users can only create scans for themselves
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        hasOnly(['uid', 'plantName', 'scientificName', 'confidence',
+                 'diseaseName', 'severity', 'treatment', 'prevention',
+                 'imageBase64', 'date']);
+
+      // Scans are immutable — no updates or deletes
+      allow update, delete: if false;
+    }
+
+    // ── MARKETPLACE LISTINGS ────────────────────────────────────
+    match /listings/{listingId} {
+      // All signed-in users can browse listings (buyers need this)
+      allow read: if isSignedIn();
+
+      // Only farmers can create listings
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        hasOnly(['uid', 'cropName', 'quantity', 'unit', 'price',
+                 'location', 'description', 'images', 'status',
+                 'createdAt']) &&
+        validString('cropName', 100) &&
+        validString('description', 500);
+
+      // Owners can update their own listings
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid;
+
+      // Owners and admins can delete listings
+      allow delete: if isSignedIn() &&
+        (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // ── LABOUR JOBS (legacy) ────────────────────────────────────
+    match /labourJobs/{jobId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ── WORKERS ─────────────────────────────────────────────────
+    match /workers/{workerId} {
+      // All signed-in users can view worker profiles
+      allow read: if isSignedIn();
+
+      // Workers can register (create) their own profile
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        hasOnly(['workerId', 'userId', 'name', 'phone', 'district',
+                 'skills', 'aadhaarLast4', 'aadhaarVerified', 'rating',
+                 'totalJobs', 'isAvailable', 'dailyRate', 'experience',
+                 'createdAt']) &&
+        validString('name', 100) &&
+        validString('district', 100);
+
+      // Workers can update their own profile (availability, skills, etc.)
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+
+      // Only admins can delete worker profiles
+      allow delete: if isAdmin();
+    }
+
+    // ── JOB POSTINGS ────────────────────────────────────────────
+    match /jobPostings/{jobId} {
+      // All signed-in users can read job postings
+      allow read: if isSignedIn();
+
+      // Only farmers can create job postings
+      allow create: if isSignedIn() &&
+        request.resource.data.farmerId == request.auth.uid &&
+        hasOnly(['farmerId', 'title', 'description', 'location',
+                 'workersNeeded', 'dailyWage', 'duration', 'startDate',
+                 'skills', 'status', 'applicants', 'acceptedWorkers',
+                 'escrowHeld', 'escrowAmount', 'createdAt']);
+
+      // Farmer who created it can update (accept/reject applicants, escrow, complete)
+      // Workers can also update (to apply — they add to applicants array)
+      allow update: if isSignedIn() &&
+        (resource.data.farmerId == request.auth.uid || isSignedIn());
+        // NOTE: More granular field-level control would be ideal here
+        // For production, use Cloud Functions for apply/accept/reject
+
+      allow delete: if isSignedIn() && resource.data.farmerId == request.auth.uid;
+    }
+
+    // ── TRANSACTIONS ────────────────────────────────────────────
+    match /transactions/{txnId} {
+      // Participants can read their own transactions
+      allow read: if isSignedIn() &&
+        (resource.data.farmerId == request.auth.uid ||
+         resource.data.workerId == request.auth.uid);
+
+      // Only server/admin should create transactions (ideally via Cloud Functions)
+      // For now, allow signed-in users (farmer completing job)
+      allow create: if isSignedIn();
+
+      // Transactions are immutable once created
+      allow update, delete: if false;
+    }
+
+    // ── NOTIFICATIONS ───────────────────────────────────────────
+    match /notifications/{notifId} {
+      // Users can only read their own notifications
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      // System creates notifications (allow any signed-in user for now)
+      allow create: if isSignedIn();
+
+      // Users can mark their own notifications as read
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+      // Users can delete their own notifications
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ── DEFAULT DENY ────────────────────────────────────────────
+    // Any collection not explicitly matched above is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

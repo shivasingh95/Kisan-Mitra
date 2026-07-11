@@ -5,6 +5,10 @@
       "destination": "/api/plantnet"
     },
     {
+      "source": "/api/weather",
+      "destination": "/api/weather"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

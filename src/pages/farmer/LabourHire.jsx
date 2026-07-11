@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import './pages.css';
 import { MOCK_WORKERS, SKILLS, getSkill } from '../../data/mockWorkers';
-import { getAllWorkers } from '../../services/db';
-import FarmerJobPost     from '../../components/Labour/FarmerJobPost.jsx';
-import FarmerHiringPanel from '../../components/Labour/FarmerHiringPanel.jsx';
-import WorkerProfileCard from '../../components/Labour/WorkerProfileCard.jsx';
-import LabourFlowStepper from '../../components/Labour/LabourFlowStepper.jsx';
+import { getAllWorkers } from '@/services/firebase/firestore.service';
+import FarmerJobPost     from '@/features/labour/components/FarmerJobPost.jsx';
+import FarmerHiringPanel from '@/features/labour/components/FarmerHiringPanel.jsx';
+import WorkerProfileCard from '@/features/labour/components/WorkerProfileCard.jsx';
+import LabourFlowStepper from '@/features/labour/components/LabourFlowStepper.jsx';
 
 const EQUIPMENT = [
   { id: 1, name: 'John Deere Tractor', hi: 'ट्रैक्टर',   icon: '🚜', rate: 800,  unit: '/hr',   owner: 'Ram Singh',    avail: true,  loc: 'Sehore',  slots: ['8 AM – 10 AM', '2 PM – 5 PM'] },
@@ -137,3 +137,4 @@ export default function LabourHire() {
     </div>
   );
 }
+

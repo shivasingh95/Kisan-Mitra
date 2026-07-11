@@ -1,173 +1,54 @@
-// src/App.jsx — Krishi Mitra Root Router
 import React from 'react';
-import { AppProvider, useApp } from './context/AppContext.jsx';
-import ErrorBoundary from './components/ErrorBoundary.jsx';
-// Styles
-import './styles/variables.css';
-import './styles/animations.css';
-import './styles/components.css';
+import { BrowserRouter } from 'react-router-dom';
+import { AppProvider, useApp } from './context/AppContext';
+import AppRouter from './router/AppRouter';
 
-// Layout
-import Sidebar  from './components/Layout/Sidebar.jsx';
-import Navbar   from './components/Layout/Navbar.jsx';
+// Layout Components
+import Navbar from './shared/components/layout/Navbar';
+import Sidebar from './shared/components/layout/Sidebar';
+import ToastComponent from './shared/components/ui/Toast';
+import ErrorBoundary from './shared/components/feedback/ErrorBoundary';
 
-// Pages — Farmer
-import Login           from './pages/Login.jsx';
-import HomeDashboard   from './pages/farmer/HomeDashboard.jsx';
-import CropDoctor      from './pages/farmer/CropDoctor.jsx';
-import MarketplaceSell from './pages/farmer/MarketplaceSell.jsx';
-import LabourHire      from './pages/farmer/LabourHire.jsx';
-import ExpertConnect   from './pages/farmer/ExpertConnect.jsx';
-import FinTech         from './pages/farmer/FinTech.jsx';
-import FarmProfile     from './pages/farmer/FarmProfile.jsx';
+// Layout CSS (not covered by global.css imports)
+import './shared/components/layout/Navbar.css';
+import './shared/components/layout/Sidebar.css';
+import './shared/components/feedback/ErrorBoundary.css';
 
-// Pages — Expert
-import ExpertDashboard from './pages/expert/ExpertDashboard.jsx';
-
-// Pages — Buyer
-import MarketplaceBrowse from './pages/buyer/MarketplaceBrowse.jsx';
-
-// Pages — Admin
-import AdminDashboard from './pages/admin/AdminDashboard.jsx';
-
-// Pages — Worker
-import WorkerRegistration from './pages/WorkerRegistration.jsx';
-import WorkerDashboard   from './pages/WorkerDashboard.jsx';
-
-// Pages — Equipment Owner
-import EquipmentRental from './pages/farmer/EquipmentRental.jsx';
-
-// Pages — System Overview
-import SystemOverview from './pages/SystemOverview.jsx';
-
-// ── Toast Component ───────────────────────────────────────────
-function Toast() {
-  const { toast } = useApp();
-  if (!toast) return null;
-  const colors = { success: '#16A34A', error: '#DC2626', info: '#2563EB', warning: '#D97706' };
-  return (
-    <div style={{
-      position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
-      background: colors[toast.type] || colors.success,
-      color: '#fff', padding: '14px 22px', borderRadius: 14,
-      boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-      animation: 'toastIn 0.35s var(--ease-spring)',
-      maxWidth: 340, fontSize: 14, fontWeight: 600, lineHeight: 1.4,
-    }}>
-      {toast.message}
-    </div>
-  );
+function ToastContainer() {
+  const { toast, clearToast } = useApp();
+  return <ToastComponent toast={toast} onDismiss={clearToast} />;
 }
 
-// ── Page Router ───────────────────────────────────────────────
-function PageRouter() {
-  const { activeRoute, navigate, demoRole } = useApp();
-
-  // Farmer pages
-  if (demoRole === 'farmer' || demoRole === undefined) {
-    switch (activeRoute) {
-      case 'dashboard':        return <HomeDashboard navigate={navigate} />;
-      case 'crop-doctor':      return <CropDoctor />;
-      case 'marketplace-sell': return <MarketplaceSell navigate={navigate} />;
-      case 'labour-hire':      return <LabourHire />;
-      case 'equipment-rent':   return <EquipmentRental />;
-      case 'expert-connect':   return <ExpertConnect navigate={navigate} />;
-      case 'fintech':          return <FinTech />;
-      case 'farm-profile':     return <FarmProfile />;
-      case 'worker-register':  return <WorkerRegistration />;
-      case 'worker-dashboard': return <WorkerDashboard />;
-      case 'system-overview':  return <SystemOverview />;
-      default:                 return <HomeDashboard navigate={navigate} />;
-    }
-  }
-
-  // Expert pages
-  if (demoRole === 'expert') {
-    switch (activeRoute) {
-      case 'expert-home':      return <ExpertDashboard />;
-      case 'sessions':         return <ExpertDashboard />;
-      case 'earnings':         return <ExpertDashboard />;
-      case 'farm-profile':     return <FarmProfile />;
-      default:                 return <ExpertDashboard />;
-    }
-  }
-
-  // Buyer pages
-  if (demoRole === 'buyer') {
-    switch (activeRoute) {
-      case 'marketplace-browse': return <MarketplaceBrowse />;
-      case 'orders':             return <MarketplaceBrowse />;
-      case 'farm-profile':       return <FarmProfile />;
-      default:                   return <MarketplaceBrowse />;
-    }
-  }
-
-  // Admin
-  if (demoRole === 'admin') {
-    return <AdminDashboard />;
-  }
-
-  // Worker
-  if (demoRole === 'worker') {
-    switch (activeRoute) {
-      case 'worker-dashboard':  return <WorkerDashboard />;
-      case 'worker-register':   return <WorkerRegistration />;
-      case 'farm-profile':      return <FarmProfile />;
-      case 'system-overview':   return <SystemOverview />;
-      default:                  return <WorkerDashboard />;
-    }
-  }
-
-  // Equipment Owner
-  if (demoRole === 'owner') {
-    switch (activeRoute) {
-      case 'equipment-rent':   return <EquipmentRental />;
-      case 'system-overview':  return <SystemOverview />;
-      case 'farm-profile':     return <FarmProfile />;
-      default:                 return <EquipmentRental />;
-    }
-  }
-
-  return <HomeDashboard navigate={navigate} />;
-}
-
-// ── Authenticated App Shell ───────────────────────────────────
-function AuthenticatedApp() {
-  return (
-    <div className="app-layout">
-      <div className="app-sidebar">
-        <Sidebar />
-      </div>
-      <div className="app-main">
-        <div className="app-navbar">
-          <Navbar />
-        </div>
-        <div className="app-content">
-          <PageRouter />
-        </div>
-      </div>
-      <Toast />
-    </div>
-  );
-}
-
-// ── Root App ──────────────────────────────────────────────────
-function AppInner() {
-  const { authStep } = useApp();
+function MainLayout() {
+  const { authStep, sidebarOpen } = useApp();
 
   if (authStep === 'login' || authStep === 'otp' || authStep === 'onboarding') {
-    return <Login />;
+    return <AppRouter />;
   }
 
-  return <AuthenticatedApp />;
+  return (
+    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <Sidebar />
+      <div className="main-content">
+        <Navbar />
+        <main className="content-area" id="main-content" tabIndex="-1">
+          <ErrorBoundary>
+            <AppRouter />
+          </ErrorBoundary>
+        </main>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
   return (
-    <AppProvider>
-      <ErrorBoundary>
-        <AppInner />
-      </ErrorBoundary>
-    </AppProvider>
+    <BrowserRouter>
+      <AppProvider>
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+        <MainLayout />
+        <ToastContainer />
+      </AppProvider>
+    </BrowserRouter>
   );
 }

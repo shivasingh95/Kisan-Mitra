@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './pages.css';
-import { getMyListings, addListing } from '../../services/db';
-import { useApp } from '../../context/AppContext';
+import { getMyListings, addListing } from '@/services/firebase/firestore.service';
+import { useApp } from '@/context/AppContext';
 
 const MANDI_PRICES = [
   { crop: 'Wheat',  emoji: '🌾', msp: 2275, current: 2150, trend: 'down', change: -35, loc: 'Bhopal',    hist: [2100,2120,2135,2130,2145,2150] },
@@ -222,3 +222,4 @@ export default function MarketplaceSell({ navigate }) {
     </div>
   );
 }
+

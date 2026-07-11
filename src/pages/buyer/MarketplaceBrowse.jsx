@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './pages.css';
-import { getActiveListings } from '../../services/db';
-import { useApp } from '../../context/AppContext';
+import { getActiveListings } from '@/services/firebase/firestore.service';
+import { useApp } from '@/context/AppContext';
 
 const LISTINGS = [
   { id: 1, farmer: 'Ramesh Kumar', loc: 'Sehore, MP', crop: 'Wheat 🌾', qty: '20 quintal', price: 2150, organic: false, delivery: true, rating: 4.7, photo: '🌾' },
@@ -201,3 +201,4 @@ export default function MarketplaceBrowse() {
     </div>
   );
 }
+

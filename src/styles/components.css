@@ -2,20 +2,8 @@
    KRISHI MITRA — Shared Component Styles
 ═══════════════════════════════════════════════════════════════ */
 
-/* ── Reset & Base ── */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--font-body);
-  background: var(--bg-app);
-  color: var(--text-900);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-img, svg { display: block; max-width: 100%; }
-a { text-decoration: none; color: inherit; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; }
-input, textarea, select { font-family: inherit; }
+/* (Reset rules moved to reset.css) */
+
 
 /* ── Accessibility ── */
 @media (prefers-reduced-motion: reduce) {
@@ -31,6 +19,47 @@ input, textarea, select { font-family: inherit; }
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: var(--border-radius-xs);
+}
+
+/* ── Skip-to-Content Link (a11y) ── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: var(--primary);
+  color: var(--text-white);
+  padding: 12px 24px;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: top 0.2s ease;
+  box-shadow: var(--shadow-md);
+}
+.skip-link:focus {
+  top: 0;
+  outline: none;
+}
+
+/* ── Offline Banner ── */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-toast, 500);
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  animation: slideDown 0.3s var(--ease-spring) both;
 }
 
 /* Hindi text */
