@@ -1,6 +1,8 @@
-// src/components/Layout/Sidebar.jsx — Upgraded with ARIA + keyboard navigation
+// src/components/Layout/Sidebar.jsx — Upgraded with ARIA + keyboard navigation + i18n
 import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
+import { useTranslation } from '@/i18n/useTranslation';
 import './Sidebar.css';
 
 /* Route config per role */
@@ -44,9 +46,17 @@ const OWNER_ROUTES = [
 const ROUTE_MAP = { farmer: FARMER_ROUTES, expert: EXPERT_ROUTES, buyer: BUYER_ROUTES, admin: ADMIN_ROUTES, worker: WORKER_ROUTES, owner: OWNER_ROUTES };
 
 export default function Sidebar() {
-  const { activeRoute, navigate, logout, demoRole, setDemoRole, setSidebarOpen, sidebarOpen } = useApp();
+  const { activeRoute, logout, demoRole, setDemoRole, setSidebarOpen, sidebarOpen } = useApp();
+  const { t, toggleLang, isHindi } = useTranslation();
+  const routerNavigate = useNavigate();
   const routes = ROUTE_MAP[demoRole] || FARMER_ROUTES;
   const navRef = useRef(null);
+
+  // Navigate using react-router (actually changes URL) + close sidebar
+  const navigateTo = (routeId) => {
+    routerNavigate(`/${routeId}`);
+    setSidebarOpen(false);
+  };
 
   // ── Focus trap: close sidebar on Escape ─────────────────────
   useEffect(() => {
@@ -116,7 +126,7 @@ export default function Sidebar() {
             <button
               key={r}
               className={`role-btn ${demoRole === r ? 'active' : ''}`}
-              onClick={() => { setDemoRole(r); navigate(ROUTE_MAP[r][0].id); }}
+              onClick={() => { setDemoRole(r); navigateTo(ROUTE_MAP[r][0].id); }}
               role="radio"
               aria-checked={demoRole === r}
               aria-label={`Switch to ${r} role`}
@@ -142,7 +152,7 @@ export default function Sidebar() {
             <button
               key={route.id}
               className={`sidebar-link ${activeRoute === route.id ? 'active' : ''}`}
-              onClick={() => navigate(route.id)}
+              onClick={() => navigateTo(route.id)}
               aria-current={activeRoute === route.id ? 'page' : undefined}
               aria-label={`${route.label} — ${route.labelHi}`}
             >
@@ -158,6 +168,18 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="sidebar-footer">
+          {/* Language Toggle */}
+          <button
+            className="lang-toggle-btn"
+            onClick={toggleLang}
+            aria-label={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+            title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+          >
+            <span aria-hidden="true">🌐</span>
+            <span>{isHindi ? 'English' : 'हिंदी'}</span>
+            <span className="lang-badge">{isHindi ? 'EN' : 'हि'}</span>
+          </button>
+
           <div className="sidebar-user-card">
             <div className="avatar avatar-sm" style={{ background: 'var(--primary-pale)', color: 'var(--primary)' }} aria-hidden="true">
               {demoRole === 'farmer' ? '👨‍🌾' : demoRole === 'expert' ? '👨‍🏫' : demoRole === 'buyer' ? '🏪' : demoRole === 'worker' ? '👷' : demoRole === 'owner' ? '🚜' : '⚙️'}
@@ -165,14 +187,14 @@ export default function Sidebar() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-900)' }}>Demo User</div>
               <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-light)' }}>
-                {demoRole.charAt(0).toUpperCase() + demoRole.slice(1)} Account
+                {t(`common.${demoRole}`)} Account
               </div>
             </div>
             <button
               className="btn btn-ghost btn-sm btn-icon"
               onClick={logout}
-              title="Logout"
-              aria-label="Logout"
+              title={t('common.logout')}
+              aria-label={t('common.logout')}
               style={{ padding: 6 }}
             >
               🚪

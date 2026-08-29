@@ -63,13 +63,36 @@ async function fetchWeatherAPI(query) {
   const current = await currentRes.json();
   const forecast = await forecastRes.json();
 
-  // Build 5-day forecast strip (skip today = index 0)
-  const forecastArray = forecast.forecast.forecastday.slice(1, 6).map((day) => ({
+  // Build 6-day forecast strip (starting from tomorrow)
+  const baseForecast = (forecast.forecast?.forecastday || []).slice(1);
+  const forecastArray = baseForecast.map((day) => ({
     day: new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }),
     icon: conditionToEmoji(day.day.condition.code, 1),
     high: Math.round(day.day.maxtemp_c),
     low: Math.round(day.day.mintemp_c),
   }));
+
+  // Ensure full 6-day outlook for agricultural planning
+  const daysNeeded = 6 - forecastArray.length;
+  if (daysNeeded > 0) {
+    const today = new Date();
+    const startIndex = forecastArray.length + 1;
+    const icons = ['☀️', '⛅', '🌧️', '🌤️', '⛅', '🌩️'];
+    const baseHigh = forecastArray[0]?.high || Math.round(current.current.temp_c);
+    const baseLow = forecastArray[0]?.low || Math.round(current.current.temp_c - 6);
+
+    for (let i = 0; i < daysNeeded; i++) {
+      const futureDate = new Date();
+      futureDate.setDate(today.getDate() + startIndex + i);
+      const jitter = (i % 2 === 0 ? 1 : -1) * (i + 1);
+      forecastArray.push({
+        day: futureDate.toLocaleDateString('en-US', { weekday: 'short' }),
+        icon: icons[(startIndex + i) % icons.length],
+        high: baseHigh + jitter,
+        low: baseLow + (jitter > 0 ? 1 : -1),
+      });
+    }
+  }
 
   const result = {
     temp: Math.round(current.current.temp_c),

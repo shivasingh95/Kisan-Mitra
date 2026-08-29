@@ -1,15 +1,18 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import { I18nProvider, useTranslation } from './i18n/useTranslation';
 import AppRouter from './router/AppRouter';
 
-// Layout Components
+// Layout & UI Components
 import Navbar from './shared/components/layout/Navbar';
 import Sidebar from './shared/components/layout/Sidebar';
 import ToastComponent from './shared/components/ui/Toast';
+import InstallPrompt from './shared/components/ui/InstallPrompt';
+import VoiceAssistant from './shared/components/ui/VoiceAssistant';
 import ErrorBoundary from './shared/components/feedback/ErrorBoundary';
 
-// Layout CSS (not covered by global.css imports)
+// Layout CSS
 import './shared/components/layout/Navbar.css';
 import './shared/components/layout/Sidebar.css';
 import './shared/components/feedback/ErrorBoundary.css';
@@ -41,14 +44,23 @@ function MainLayout() {
   );
 }
 
+function SkipLink() {
+  const { t } = useTranslation();
+  return <a href="#main-content" className="skip-link">{t('app.skipToContent')}</a>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <AppProvider>
-        <a href="#main-content" className="skip-link">Skip to main content</a>
-        <MainLayout />
-        <ToastContainer />
-      </AppProvider>
+      <I18nProvider>
+        <AppProvider>
+          <SkipLink />
+          <MainLayout />
+          <ToastContainer />
+          <InstallPrompt />
+          <VoiceAssistant />
+        </AppProvider>
+      </I18nProvider>
     </BrowserRouter>
   );
 }

@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
+import { useTranslation } from '@/i18n/useTranslation';
 import { setupRecaptcha, sendPhoneOTP, verifyPhoneOTP } from '@/services/firebase/auth.service';
+import { trackLogin } from '@/shared/utils/analytics';
 import '../styles/login.css';
 
 const FEATURES = [
-  { icon: '🔬', title: 'AI Crop Doctor',      desc: 'Photo lo, bimari pakdo — instantly' },
-  { icon: '📈', title: 'Live Mandi Prices',   desc: 'Real-time bhav — seedha mandi se' },
-  { icon: '👨‍💼', title: 'Expert Connect',      desc: 'Specialist se seedha baat karo' },
-  { icon: '💳', title: 'Loans & Schemes',     desc: 'PM Kisan, KCC sab ek jagah' },
+  { icon: '🔬', title: 'AI Crop Doctor',      titleHi: 'फ़सल डॉक्टर AI',   desc: 'Photo lo, bimari pakdo — instantly', descHi: 'तस्वीर लें, बीमारी तुरंत पहचानें' },
+  { icon: '📈', title: 'Live Mandi Prices',   titleHi: 'लाइव मंडी भाव',    desc: 'Real-time bhav — seedha mandi se', descHi: 'सीधा मंडी से ताज़ा भाव' },
+  { icon: '👨‍💼', title: 'Expert Connect',      titleHi: 'विशेषज्ञ से जुड़ें', desc: 'Specialist se seedha baat karo', descHi: 'कृषि वैज्ञानिकों से सीधी सलाह' },
+  { icon: '💳', title: 'Loans & Schemes',     titleHi: 'ऋण व योजनाएं',     desc: 'PM Kisan, KCC sab ek jagah', descHi: 'पीएम किसान, केसीसी सब एक जगह' },
 ];
 
 export default function Login() {
-  const { loginWithOTP, handleAuthSuccess, showToast } = useApp();
+  const { loginWithOTP, handleAuthSuccess } = useApp();
+  const { t, isHindi, toggleLang } = useTranslation();
   const [step, setStep] = useState('phone'); // phone | otp | loading
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -37,7 +40,7 @@ export default function Login() {
   // ── Send OTP via Firebase ────────────────────────────────
   const sendOTP = async () => {
     if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit number');
+      setError(t('auth.invalidPhone'));
       return;
     }
     setError('');
@@ -53,20 +56,13 @@ export default function Login() {
       console.error('OTP send error:', err.code, err.message);
       setStep('phone');
       if (err.code === 'auth/invalid-phone-number') {
-        setError('Invalid phone number. Please check and retry.');
+        setError(t('auth.invalidPhone'));
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please wait a few minutes.');
-      } else if (err.code === 'auth/operation-not-allowed') {
-        setError('Phone login not enabled. Enable it in Firebase Console → Authentication → Sign-in method → Phone.');
-      } else if (err.code === 'auth/captcha-check-failed' || err.code === 'auth/argument-error') {
-        if (window.recaptchaVerifier) { window.recaptchaVerifier.clear(); window.recaptchaVerifier = null; }
-        setError('reCAPTCHA failed. Please click "OTP bhejo" once more.');
+        setError(isHindi ? 'बहुत सारे प्रयास। कृपया कुछ मिनट प्रतीक्षा करें।' : 'Too many attempts. Please wait a few minutes.');
       } else if (err.code === 'auth/quota-exceeded') {
-        setError('SMS quota exceeded for today. Use Demo mode instead.');
-      } else if (err.code === 'auth/app-not-authorized') {
-        setError('App not authorized. Check Firebase project settings.');
+        setError(isHindi ? 'SMS कोटा समाप्त। कृपया डेमो मोड का उपयोग करें।' : 'SMS quota exceeded for today. Use Demo mode instead.');
       } else {
-        setError(`Error: ${err.code || err.message || 'Unknown. Check browser console.'}`);
+        setError(t('auth.otpError'));
       }
     }
   };
@@ -96,22 +92,23 @@ export default function Login() {
   // ── Verify OTP via Firebase ──────────────────────────────
   const verifyOTP = async () => {
     const code = otp.join('');
-    if (code.length < 6) { setError('Enter all 6 digits'); return; }
+    if (code.length < 6) { setError(t('auth.invalidOTP')); return; }
     setError('');
     setStep('loading');
     try {
       const fbUser = await verifyPhoneOTP(code);
+      trackLogin('phone_otp');
       await handleAuthSuccess(fbUser);
     } catch (err) {
       console.error('OTP verify error:', err);
       setStep('otp');
       if (err.code === 'auth/invalid-verification-code') {
-        setError('Galat OTP. Phir se check karo.');
+        setError(t('auth.verifyError'));
       } else if (err.code === 'auth/code-expired') {
-        setError('OTP expire ho gaya. Dobara bhejiye.');
+        setError(isHindi ? 'OTP समाप्त हो गया। दोबारा भेजें।' : 'OTP expired. Please resend.');
         setStep('phone');
       } else {
-        setError('Verification failed. Please retry.');
+        setError(t('auth.verifyError'));
       }
     }
   };
@@ -129,12 +126,13 @@ export default function Login() {
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (err) {
       setStep('otp');
-      setError('Dobara OTP bhejne mein dikkat. Please wait.');
+      setError(t('auth.otpError'));
     }
   };
 
   // ── Demo login (skip Firebase for presentations) ─────────
   const goDemo = () => {
+    trackLogin('demo');
     loginWithOTP('9999999999', { name: 'Ramesh Kumar', role: 'farmer', village: 'Sehore, MP' });
   };
 
@@ -151,8 +149,8 @@ export default function Login() {
         <div className="login-brand anim-fadein">
           <div className="login-brand-badge">India's #1 Kisan Platform</div>
           <span className="login-brand-logo">🌿</span>
-          <h1 className="login-brand-title hindi">कृषि Mitra</h1>
-          <p className="login-brand-tagline">India's smartest kisan platform</p>
+          <h1 className="login-brand-title hindi">{t('app.name')}</h1>
+          <p className="login-brand-tagline">{t('app.tagline')}</p>
         </div>
 
         {/* Feature cards */}
@@ -163,8 +161,8 @@ export default function Login() {
                 <span className="login-feat-icon">{f.icon}</span>
               </div>
               <div>
-                <div className="login-feat-title">{f.title}</div>
-                <div className="login-feat-desc hindi">{f.desc}</div>
+                <div className="login-feat-title">{isHindi ? f.titleHi : f.title}</div>
+                <div className="login-feat-desc hindi">{isHindi ? f.descHi : f.desc}</div>
               </div>
             </div>
           ))}
@@ -174,21 +172,40 @@ export default function Login() {
         <div className="login-stats">
           <div className="login-stat">
             <span className="login-stat-num">2.4L+</span>
-            <span>Farmers</span>
+            <span>{isHindi ? 'किसान' : 'Farmers'}</span>
           </div>
           <div className="login-stat">
             <span className="login-stat-num">18K+</span>
-            <span>Experts</span>
+            <span>{isHindi ? 'विशेषज्ञ' : 'Experts'}</span>
           </div>
           <div className="login-stat">
             <span className="login-stat-num">₹340Cr</span>
-            <span>Transactions</span>
+            <span>{isHindi ? 'लेन-देन' : 'Transactions'}</span>
           </div>
         </div>
       </div>
 
       {/* ════════════ RIGHT — Auth card ════════════ */}
       <div className="login-right">
+        {/* Top right language switch */}
+        <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 10 }}>
+          <button 
+            className="btn btn-ghost btn-sm"
+            onClick={toggleLang}
+            style={{ 
+              background: 'rgba(255,255,255,0.7)', 
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              borderRadius: 20,
+              padding: '6px 14px',
+              fontSize: '0.85rem',
+              fontWeight: 600
+            }}
+          >
+            🌐 {isHindi ? 'English' : 'हिंदी'}
+          </button>
+        </div>
+
         {/* Invisible reCAPTCHA container */}
         <div id="recaptcha-container" />
         <div className="login-card">
@@ -200,12 +217,12 @@ export default function Login() {
           {step === 'phone' && (
             <>
               <div className="login-card-header">
-                <h2 className="hindi">Login करें</h2>
-                <p>Apna mobile number daliye — OTP aayega</p>
+                <h2 className="hindi">{t('auth.loginTitle')}</h2>
+                <p>{t('auth.loginSubtitle')}</p>
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="phone-input">Mobile Number</label>
+                <label className="form-label" htmlFor="phone-input">{t('auth.mobileNumber')}</label>
                 <div className="phone-input-wrap">
                   <span className="phone-prefix" aria-hidden="true">🇮🇳 +91</span>
                   <input
@@ -225,18 +242,17 @@ export default function Login() {
               </div>
 
               <button id="send-otp-btn" className="btn btn-primary btn-full btn-lg" onClick={sendOTP}>
-                OTP bhejo 📲
+                {t('auth.sendOTP')}
               </button>
 
-              <div className="divider-text">ya</div>
+              <div className="divider-text">{t('auth.or')}</div>
 
               <button id="demo-btn" className="btn btn-secondary btn-full" onClick={goDemo}>
-                🚀 Demo mein try karo — bina login ke
+                {t('auth.demoMode')}
               </button>
 
               <p className="login-legal hindi">
-                Login karke aap hamare Terms of Service aur Privacy Policy se agree karte hain.
-                Aapka data surakshit hai. 🔒
+                {t('auth.legalText')}
               </p>
             </>
           )}
@@ -245,11 +261,11 @@ export default function Login() {
           {step === 'otp' && (
             <>
               <button className="login-back-btn" onClick={() => setStep('phone')}>
-                ← Wapas jaao
+                ← {isHindi ? 'वापस जाएं' : 'Go back'}
               </button>
               <div className="login-card-header">
-                <h2 className="hindi">OTP Verify करें</h2>
-                <p>+91 {phone} pe 6-digit OTP bheja gaya hai</p>
+                <h2 className="hindi">{t('auth.verifyOTP')}</h2>
+                <p>+91 {phone} — {t('auth.enterOTP')}</p>
               </div>
 
               <div className="otp-row" onPaste={handleOtpPaste}>
@@ -276,13 +292,13 @@ export default function Login() {
 
               <button id="verify-otp-btn" className="btn btn-primary btn-full btn-lg" onClick={verifyOTP}
                 style={{ marginBottom: 8 }}>
-                Verify karo ✓
+                {t('auth.verifyOTP')}
               </button>
 
               <div className="otp-resend-area">
                 {timer > 0
-                  ? <span className="otp-timer">⏱ Dobara bhejo {timer}s mein</span>
-                  : <button className="btn btn-ghost btn-sm" onClick={resendOTP}>↺ Dobara OTP bhejo</button>
+                  ? <span className="otp-timer">⏱ {isHindi ? `दोबारा भेजें ${timer}s में` : `Resend in ${timer}s`}</span>
+                  : <button className="btn btn-ghost btn-sm" onClick={resendOTP}>↺ {isHindi ? 'दोबारा OTP भेजें' : 'Resend OTP'}</button>
                 }
               </div>
             </>
@@ -296,8 +312,8 @@ export default function Login() {
                 <div className="login-spinner-inner" />
               </div>
               <span className="login-loading-icon">🌱</span>
-              <h3 className="hindi">Verify ho raha hai…</h3>
-              <p>Ek second — aapka account ready ho raha hai</p>
+              <h3 className="hindi">{isHindi ? 'प्रमाणीकरण हो रहा है…' : 'Verifying…'}</h3>
+              <p>{isHindi ? 'एक सेकंड — आपका खाता तैयार हो रहा है' : 'One second — setting up your account'}</p>
             </div>
           )}
 
@@ -306,4 +322,3 @@ export default function Login() {
     </div>
   );
 }
-

@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import LoadingState from '../shared/components/feedback/LoadingState';
+import { trackPageView } from '@/shared/utils/analytics';
 
 // ── Lazy-loaded pages ────────────────────────
 const Login              = lazy(() => import('../pages/Login'));
@@ -28,11 +29,12 @@ export default function AppRouter() {
   const { authStep, demoRole, setActiveRoute } = useApp();
   const location = useLocation();
 
-  // Keep old context in sync with actual route for backwards compatibility with Sidebar/Navbar
+  // Keep old context in sync with actual route + track page views
   useEffect(() => {
     const path = location.pathname.split('/')[1] || 'dashboard';
     setActiveRoute(path);
-  }, [location, setActiveRoute]);
+    trackPageView(path, demoRole);
+  }, [location, setActiveRoute, demoRole]);
 
   if (authStep === 'login' || authStep === 'otp' || authStep === 'onboarding') {
     return (
