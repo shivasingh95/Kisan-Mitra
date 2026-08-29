@@ -1,237 +1,341 @@
-# 🌾 KrishiMitra — Real-World AgriTech Platform Specification (SYSTEM.md)
+# 🌾 KrishiMitra — Complete System Architecture & Implementation Manual (SYSTEM.md)
 
-> **Document Version**: 2.0.0  
-> **Target Audience**: Cloud Engineers, Full-Stack Developers, AI Coding Assistants (Claude / Gemini / ChatGPT), Product Architects  
-> **Purpose**: Complete blueprint to convert the KrishiMitra frontend prototype into a production-grade, distributed, real-world Indian AgriTech ecosystem.
-
----
-
-## 📌 1. System Vision & Business Architecture
-
-### 1.1 Objective
-KrishiMitra is a mobile-first, voice-enabled, offline-resilient digital agricultural ecosystem designed to empower over 140 million Indian farmers, rural workers, FPOs (Farmer Producer Organisations), agricultural scientists, and wholesale buyers.
-
-### 1.2 Core User Personas & Value Propositions
-1. **Farmer (किसान)**:
-   - Real-time AI crop disease diagnosis with instant treatment plans in Hindi/regional languages.
-   - Live Agmarknet Mandi prices, MSP alerts, and direct buyer listing with zero middleman exploitation.
-   - One-tap booking for seasonal farm labour and heavy agricultural machinery (tractors, harvesters, seeders).
-   - Direct tele-consultation with certified ICAR/IARI agricultural scientists.
-   - Credit score estimation and 1-click application for PM-KISAN, KCC, and PMFBY.
-2. **Agricultural Expert (विशेषज्ञ)**:
-   - Live consultation queue, digital prescription generator, earnings ledger, and appointment scheduler.
-3. **Crop Buyer / Trader (खरीदार)**:
-   - Direct-from-farm procurement catalog, quality verification, organic filters, and escrow payments.
-4. **Rural Labourer / Operator (श्रमिक / चालक)**:
-   - Daily wage job discovery, skill-based hiring, and instant daily payout tracking.
-5. **System Administrator (एडमिन)**:
-   - User verification, dispute arbitration, transaction monitoring, and FPO management.
+> **Document Version**: 2.1.0  
+> **Platform**: KrishiMitra (कृषि Mitra) — AI-Powered AgriTech Ecosystem for Indian Farmers  
+> **Tech Stack**: React 19, Vite 8, React Router v7, Firebase v12 (Auth + Firestore + Analytics), Pure Vanilla CSS Glassmorphism Design System, Web Speech API, PWA Service Worker.
 
 ---
 
-## 🏗️ 2. Current Architecture (As-Is) vs. Real-World Target (To-Be)
-
-| Component | Current Prototype (As-Is) | Real-World Production Architecture (To-Be) |
-| :--- | :--- | :--- |
-| **Frontend** | React 19 + Vite 8 + React Router v7 + Vanilla CSS | React 19 PWA with Next.js 15 / SSR or Capacitor.js for native Android APK distribution |
-| **Language & i18n** | Zero-dependency Hindi & English JSON | 12 Indian Languages (Hindi, Marathi, Punjabi, Gujarati, Telugu, Tamil, Kannada, Bengali, Odia, etc.) via format.js / i18next + Audio narration |
-| **Voice & Speech** | Client-side Web Speech API | AI Speech-to-Intent pipeline using Bhashini API (Govt of India AI) + OpenAI Whisper + Coqui TTS |
-| **AI Crop Doctor** | Gemini / Claude API via serverless proxy | Dual-layer: On-device TensorFlow Lite / ONNX model (offline) + Cloud Vision fine-tuned on ICAR/PlantVillage dataset |
-| **Mandi Prices** | Simulated Agmarknet data service | Live integration with `Data.gov.in` Agmarknet API + e-NAM REST API with Redis caching & Cron sync |
-| **Weather** | WeatherAPI.com with localStorage cache | IMD (India Meteorological Dept) + Open-Meteo agro-weather API with micro-climate rain radars & frost alerts |
-| **Database & Auth** | Firebase Phone Auth + Firestore IndexedDB | Firebase / Supabase Auth with Aadhaar / DigiLocker KYC + Cloud PostgreSQL (TimescaleDB for Mandi timeseries) + Redis |
-| **Payments** | Simulated checkout | Razorpay / PhonePe / Cashfree UPI integration with Escrow & Automated Direct Benefit Transfers (DBT) |
-| **Expert Consult** | Booking UI state | WebRTC live video/audio rooms (LiveKit / Agora) + subcollection real-time message chat |
-| **Notifications** | In-app Firestore snapshots | Multi-channel: WhatsApp Business API (Meta Cloud / Gupshup) + SMS (MSG91 / CDAC) + Web Push |
-| **Satellite Imagery**| Mock health bars | Google Earth Engine / Sentinel-2 API for NDVI, NDRE, and soil moisture satellite maps |
+## 📑 Table of Contents
+1. [Executive Summary & Core Value Proposition](#1-executive-summary--core-value-proposition)
+2. [Comprehensive End-to-End Implementation Breakdown](#2-comprehensive-end-to-end-implementation-breakdown)
+   - [2.1 File & Directory Tree](#21-file--directory-tree)
+   - [2.2 App Entry, Providers & Root Layout (`App.jsx`, `main.jsx`)](#22-app-entry-providers--root-layout-appjsx-mainjsx)
+   - [2.3 State Management & Context Architecture (`AppContext.jsx`, `AuthContext.jsx`)](#23-state-management--context-architecture-appcontextjsx-authcontextjsx)
+   - [2.4 Routing & Security Wrappers (`AppRouter.jsx`, `ProtectedRoute.jsx`, `RoleRoute.jsx`)](#24-routing--security-wrappers-approuterjsx-protectedroutejsx-roleroutejsx)
+   - [2.5 Zero-Dependency Localization Engine (`src/i18n/`)](#25-zero-dependency-localization-engine-srci18n)
+   - [2.6 Voice Assistant & Speech-to-Intent Pipeline (`VoiceAssistant.jsx`)](#26-voice-assistant--speech-to-intent-pipeline-voiceassistantjsx)
+   - [2.7 Offline-First Data & Service Layer (`services/`)](#27-offline-first-data--service-layer-services)
+   - [2.8 UI Design System & CSS Glassmorphism (`src/styles/`)](#28-ui-design-system--css-glassmorphism-srcstyles)
+   - [2.9 Feature Pages & User Flows](#29-feature-pages--user-flows)
+3. [Real-World Enterprise Production Blueprint (To-Be)](#3-real-world-enterprise-production-blueprint-to-be)
+4. [Master Prompts for Cloud AI & Backend Engineering](#4-master-prompts-for-cloud-ai--backend-engineering)
 
 ---
 
-## 📊 3. Database Schema & Data Models
+## 1. Executive Summary & Core Value Proposition
 
-### 3.1 Entity Relationship Diagram (Conceptual)
-```mermaid
-erDiagram
-    USERS ||--o{ FARMS : owns
-    USERS ||--o{ DIAGNOSES : uploads
-    USERS ||--o{ LISTINGS : creates
-    USERS ||--o{ LABOUR_JOBS : posts
-    USERS ||--o{ SESSIONS : books
-    LISTINGS ||--o{ ORDERS : produces
-    USERS ||--o{ ORDERS : buys
-    SESSIONS ||--o{ CHAT_MESSAGES : contains
-    USERS ||--o{ SCHEMES_APPLIED : submits
+KrishiMitra is designed specifically for rural Indian agriculture, catering to varying digital literacy levels, low-end mobile devices (Android Go, 2GB RAM), and spotty 2G/3G connectivity.
+
+### Key Capabilities:
+- **🔬 AI Crop Doctor**: Instant leaf diagnosis using Gemini 2.0 / Claude vision models, generating severity levels, structured chemical/organic treatment steps, and Hindi voice synthesis (`SpeechSynthesisUtterance`).
+- **📈 Real-Time Mandi Bhav**: Commodity price monitor across MP districts with official MSP comparisons and price trend sparklines.
+- **🛒 Direct Marketplace**: Buy/sell crop harvest with zero middleman commissions.
+- **👷 Labour & Machinery Hire**: On-demand farm worker hiring and tractor/harvester rental calculator.
+- **👨‍💼 Scientist & Expert Tele-Consultation**: Direct appointment booking with agricultural scientists.
+- **💳 Rural FinTech & Subsidy Hub**: Kisan Credit Score gauge and 1-tap application for PM-KISAN, KCC, and PMFBY.
+- **🌐 Bilingual & Voice-First**: Instant Hindi/English toggle and floating microphone voice assistant.
+- **📴 Offline Resilience**: IndexedDB data caching and PWA service worker offline booting (<2MB).
+
+---
+
+## 2. Comprehensive End-to-End Implementation Breakdown
+
+### 2.1 File & Directory Tree
+
 ```
-
-### 3.2 Core Firestore / PostgreSQL Collections
-
-```typescript
-// 1. User Profile
-interface User {
-  uid: string;
-  phone: string; // E.164 (+91XXXXXXXXXX)
-  name: string;
-  role: 'farmer' | 'expert' | 'buyer' | 'worker' | 'admin';
-  language: 'hi' | 'en' | 'mr' | 'te' | 'pa' | 'gu';
-  village: string;
-  district: string;
-  state: string;
-  pincode: string;
-  coordinates?: { lat: number; lng: number };
-  isKycVerified: boolean;
-  kycDocType?: 'aadhaar' | 'kisan_credit_card';
-  createdAt: string;
-}
-
-// 2. Farm Entity
-interface Farm {
-  id: string;
-  userId: string;
-  landAreaAcres: number;
-  soilType: 'black' | 'alluvial' | 'red' | 'clay' | 'sandy';
-  irrigationSource: 'canal' | 'borewell' | 'drip' | 'rainfed';
-  activeCrops: Array<{
-    cropName: string;
-    variety: string;
-    sowingDate: string;
-    expectedHarvestDate: string;
-    healthIndexScore: number; // 0 - 100
-  }>;
-}
-
-// 3. AI Crop Diagnosis
-interface Diagnosis {
-  id: string;
-  userId: string;
-  cropName: string;
-  diseaseNameEn: string;
-  diseaseNameHi: string;
-  severity: 'Low' | 'Medium' | 'High' | 'Critical';
-  confidencePercent: number;
-  imageUrl: string;
-  treatmentSteps: string[];
-  preventiveMeasures: string;
-  audioVoiceUrl?: string;
-  verifiedByExpertId?: string;
-  createdAt: string;
-}
-
-// 4. Marketplace Listing & Orders
-interface CropListing {
-  id: string;
-  farmerId: string;
-  farmerName: string;
-  crop: string;
-  variety: string;
-  quantityQuintals: number;
-  askingPricePerQuintal: number;
-  mspBenchmarkPrice: number;
-  isOrganicCertified: boolean;
-  location: { mandi: string; district: string; state: string };
-  status: 'active' | 'under_bid' | 'sold' | 'cancelled';
-  photos: string[];
-  createdAt: string;
-}
-
-// 5. Expert Consultation Session
-interface ConsultationSession {
-  id: string;
-  farmerId: string;
-  expertId: string;
-  scheduledTime: string;
-  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
-  roomUrl?: string; // WebRTC room
-  prescriptionNotes?: string;
-  feeAmountINR: number;
-  isDemoFree: boolean;
-  rating?: number;
-}
+krishi-mitra/
+├── api/                           # Vercel Serverless Proxies (API key protection)
+│   ├── plantnet.js                # PlantNet proxy
+│   └── weather.js                 # WeatherAPI proxy
+├── public/                        # Static assets, icons & manifest
+│   ├── favicon.ico
+│   ├── manifest.webmanifest       # PWA Install manifest
+│   └── robots.txt
+├── src/
+│   ├── context/                   # Global State Layer
+│   │   ├── AppContext.jsx         # UI, Toast, Active Route, Demo State
+│   │   └── AuthContext.jsx        # Firebase Phone Auth & Session State
+│   ├── i18n/                      # Zero-dependency Localization Engine
+│   │   ├── en.json                # English strings dictionary
+│   │   ├── hi.json                # Hindi strings dictionary
+│   │   └── useTranslation.jsx     # I18nProvider + useTranslation hook
+│   ├── pages/                     # Lazy-Loaded Route Views
+│   │   ├── Login.jsx              # Phone OTP + Demo Authentication
+│   │   ├── admin/
+│   │   │   ├── AdminDashboard.jsx # System overview, metrics & controls
+│   │   │   └── SystemOverview.jsx # Service health & uptime
+│   │   ├── buyer/
+│   │   │   └── MarketplaceBrowse.jsx # Browse crops, filter organic/delivery
+│   │   ├── expert/
+│   │   │   └── ExpertDashboard.jsx # Consultations queue & prescriptions
+│   │   ├── farmer/
+│   │   │   ├── CropDoctor.jsx     # AI leaf scan, treatment & audio
+│   │   │   ├── EquipmentRental.jsx# Tractors, tillers & harvesters
+│   │   │   ├── ExpertConnect.jsx  # Scientist booking & consultations
+│   │   │   ├── FarmProfile.jsx    # Soil health & crop inventory
+│   │   │   ├── FinTech.jsx        # PM-KISAN, KCC & bookkeeping
+│   │   │   ├── HomeDashboard.jsx  # Central dashboard hub
+│   │   │   ├── LabourHire.jsx     # Farm worker hiring & job posting
+│   │   │   ├── MarketplaceSell.jsx# List harvest & check Mandi rates
+│   │   │   └── pages.css          # Shared styles for farmer views
+│   │   └── worker/
+│   │       ├── WorkerDashboard.jsx# Worker earnings & job discovery
+│   │       └── WorkerRegistration.jsx # Skill onboarding & daily wage
+│   ├── router/                    # Route Configuration & Guards
+│   │   ├── AppRouter.jsx          # React Router v7 lazy routes
+│   │   ├── ProtectedRoute.jsx     # Authentication guard
+│   │   └── RoleRoute.jsx          # RBAC role guard (farmer/expert/buyer/admin/worker)
+│   ├── services/                  # API, Firebase & Data Layer
+│   │   ├── api/
+│   │   │   ├── agmarknet.service.js # Live Mandi rates, MSPs & trends
+│   │   │   ├── claude.service.js    # Multi-modal crop leaf vision
+│   │   │   └── weather.service.js   # Agro-meteorological forecasts
+│   │   └── firebase/
+│   │       ├── auth.service.js    # Firebase Phone OTP & Recaptcha
+│   │       ├── config.js          # Firebase init, IndexedDB persistence, Analytics
+│   │       └── firestore.service.js # Typed CRUD for Firestore
+│   ├── shared/                    # Reusable Utilities, Hooks & UI
+│   │   ├── components/
+│   │   │   ├── feedback/
+│   │   │   │   ├── ErrorBoundary.jsx # Global error containment
+│   │   │   │   └── LoadingState.jsx  # Glassmorphic skeleton loader
+│   │   │   ├── layout/
+│   │   │   │   ├── Navbar.jsx        # Top bar with weather & notifications
+│   │   │   │   └── Sidebar.jsx       # Pinned sidebar with role switcher
+│   │   │   └── ui/
+│   │   │       ├── InstallPrompt.jsx # PWA "Add to Home Screen" banner
+│   │   │       ├── Toast.jsx         # Custom glass toast alerts
+│   │   │       └── VoiceAssistant.jsx# Floating speech recognition mic
+│   │   ├── hooks/
+│   │   │   ├── useDebounce.js
+│   │   │   ├── useGeolocation.js
+│   │   │   ├── useNetworkStatus.js   # Online/offline network detector
+│   │   │   ├── useNotifications.js   # Real-time Firestore notifications
+│   │   │   └── useWeather.js         # Dual-layer cached weather hook
+│   │   └── utils/
+│   │       ├── analytics.js          # Firebase Analytics event logger
+│   │       ├── formatters.js         # INR currency & date formatting
+│   │       ├── rateLimit.js          # Client-side throttling
+│   │       └── sanitize.js           # XSS input sanitizer
+│   ├── styles/                    # Design System
+│   │   ├── animations.css         # Keyframe transitions & pulses
+│   │   ├── components.css         # Buttons, cards, modals, layout
+│   │   ├── global.css             # Entry stylesheet
+│   │   ├── reset.css              # Box-sizing & default reset
+│   │   └── variables.css          # Design tokens & color system
+│   ├── App.jsx                    # Root App Shell
+│   └── main.jsx                   # React 19 Root Entry
+├── firestore.indexes.json         # Firestore compound query indexes
+├── firestore.rules                # 195-line Security Rules (RBAC)
+├── vite.config.js                 # Rollup chunking & PWA workbox setup
+└── SYSTEM.md                      # System manual & specification
 ```
 
 ---
 
-## 🔌 4. Real-World External API Integrations
+### 2.2 App Entry, Providers & Root Layout (`App.jsx`, `main.jsx`)
 
-### 4.1 Live Mandi Prices (`Data.gov.in` / e-NAM)
+The root application encapsulates the entire component tree within three context providers:
+1. **`BrowserRouter`**: React Router v7 DOM navigation.
+2. **`I18nProvider`**: Provides language state (`hi` / `en`) with automatic `localStorage` persistence and updating `document.documentElement.lang`.
+3. **`AppProvider`**: Composed state combining Authentication, Active Route, Toast Dispatcher, and Sidebar drawer state.
+
+```jsx
+// src/App.jsx (Architecture Overview)
+export default function App() {
+  return (
+    <BrowserRouter>
+      <I18nProvider>
+        <AppProvider>
+          <SkipLink />
+          <MainLayout />
+          <ToastContainer />
+          <InstallPrompt />
+          <VoiceAssistant />
+        </AppProvider>
+      </I18nProvider>
+    </BrowserRouter>
+  );
+}
 ```
-GET https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070
-Query Parameters:
-  - api-key: ${DATA_GOV_IN_KEY}
-  - format: json
-  - filters[state]: "Madhya Pradesh"
-  - filters[commodity]: "Wheat"
-```
 
-### 4.2 Bhashini AI (Govt. of India Language Model)
-- **Pipeline**: Automated Speech-to-Text (ASR) + Text-to-Text Translation (NMT) + Text-to-Speech (TTS) for 22 Indian regional languages.
-- **Endpoint**: `https://dhruva-api.bhashini.gov.in/services/inference/pipeline`
-
-### 4.3 Hyper-Local Agricultural Weather (IMD / Open-Meteo)
-- Hourly soil temperature at 0-7cm depth, volumetric soil moisture, evapotranspiration, and GDD (Growing Degree Days).
-- `https://api.open-meteo.com/v1/forecast?latitude=23.25&longitude=77.41&hourly=soil_temperature_0cm,soil_moisture_0_to_1cm,evapotranspiration`
-
-### 4.4 Automated WhatsApp & SMS Messaging
-- **Daily 6:00 AM Mandi & Weather Digest**:
-  > "🌾 *शुभ प्रभात रमेश जी!* आज सीहोर मंडी में सोयाबीन का भाव ₹5,140 (+₹45) है। कल शाम बारिश की 60% संभावना है। कीटनाशक छिड़काव आज दोपहर 2 बजे से पहले करें।"
+#### Layout Shell (`MainLayout`)
+- When unauthenticated (`authStep === 'login'`), the login viewport is displayed full-screen without chrome.
+- When authenticated:
+  - `.app-container`: Flex container (`min-height: 100vh`) providing the App Shell.
+  - `<Sidebar />`: Sticky 260px left sidebar with role switcher, navigation links, user pill, and language toggle.
+  - `.main-content`: Flex column filling the viewport width.
+  - `<Navbar />`: Sticky top header with weather badge, notification bell dropdown, and avatar.
+  - `<main className="content-area">`: Houses `<ErrorBoundary>` wrapping lazy-loaded pages.
+  - `<InstallPrompt />` & `<VoiceAssistant />`: Floating utilities accessible across all views.
 
 ---
 
-## 🔒 5. Security, KYC & DPDP Compliance
+### 2.3 State Management & Context Architecture (`AppContext.jsx`, `AuthContext.jsx`)
 
-1. **Aadhaar & Mobile Authentication**:
-   - Masked OTP verification with encrypted PII storage.
-   - Compliance with the **Digital Personal Data Protection (DPDP) Act 2023**.
-2. **Escrow Financial Protection**:
-   - Buyers deposit funds into an escrow account. Payout is released to the farmer immediately upon delivery confirmation at the Mandi scale.
-3. **Zero Data Leakage on Image Uploads**:
-   - Crop scan images stripped of EXIF metadata before processing.
+State management uses React Context + Custom Hooks without external heavyweight libraries (Redux/Zustand), maintaining a sub-1MB bundle:
+
+- **`AuthContext.jsx`**:
+  - Subscribes to Firebase `onAuthStateChanged`.
+  - Manages `firebaseUser`, `demoRole` (`farmer` | `expert` | `buyer` | `worker` | `admin`), and session persistence.
+  - Provides `loginWithOTP()`, `verifyPhoneOTP()`, `logout()`, and `handleAuthSuccess()`.
+  - Includes a fast **Demo Mode bypass** for presentations and testing.
+
+- **`AppContext.jsx`**:
+  - Manages UI state: `activeRoute`, `sidebarOpen`, and active `toast` notifications.
+  - Exposes `showToast(msg, type)` and `clearToast()`.
 
 ---
 
-## 🚀 6. Step-by-Step Production Roadmap
+### 2.4 Routing & Security Wrappers (`AppRouter.jsx`, `ProtectedRoute.jsx`, `RoleRoute.jsx`)
 
-```mermaid
-gantt
-    title KrishiMitra Production Rollout
-    dateFormat  YYYY-MM-DD
-    section Phase 1: Core Foundation
-    Bhashini Voice Pipeline & 10 Languages       :2026-09-01, 30d
-    Aadhaar & DigiLocker KYC Integration         :2026-09-15, 25d
-    section Phase 2: Live Agri Data
-    Agmarknet & e-NAM Real-Time Ingestion Pipe   :2026-10-01, 30d
-    IMD Agro-Meteorological Weather Engine       :2026-10-15, 20d
-    section Phase 3: Fintech & Marketplace
-    Razorpay Escrow & UPI Direct Transfers       :2026-11-01, 30d
-    WebRTC Live Video Consultation for Experts   :2026-11-15, 25d
-    section Phase 4: Satellite & Field Scale
-    Sentinel-2 NDVI Satellite Health Maps        :2026-12-01, 40d
-    FPO & CSC Mandi Kiosk Deployment             :2026-12-15, 30d
+All 15 application views are code-split using `React.lazy()`:
+- **`ProtectedRoute.jsx`**: Redirects unauthenticated users to `/login`.
+- **`RoleRoute.jsx`**: Enforces Role-Based Access Control (RBAC). If a Farmer navigates to `/admin`, they are redirected to `/dashboard`.
+- **`AppRouter.jsx`**: Synchronizes browser URL paths to `activeRoute` and automatically logs `page_view` analytics on every transition.
+
+```jsx
+// Route Mapping Matrix:
+// /dashboard, /crop-doctor, /marketplace-sell, /labour-hire, /equipment-rent, /expert-connect, /fintech, /farm-profile -> Farmer
+// /marketplace-browse, /orders -> Buyer
+// /expert-home, /sessions, /earnings -> Expert
+// /worker-dashboard, /worker-register -> Worker
+// /admin, /system-overview -> Admin
 ```
 
 ---
 
-## 🤖 7. Master AI Cloud Prompts (Copy-Pasteable for Claude / LLMs)
+### 2.5 Zero-Dependency Localization Engine (`src/i18n/`)
 
-### 📋 Master Prompt A: Backend & API Engineering
+- Built from scratch in [`useTranslation.jsx`](file:///c:/Users/Shiva%20Raghuwanshi/Documents/krishi-mitra/src/i18n/useTranslation.jsx) with JSON locale dictionaries ([`hi.json`](file:///c:/Users/Shiva%20Raghuwanshi/Documents/krishi-mitra/src/i18n/hi.json), [`en.json`](file:///c:/Users/Shiva%20Raghuwanshi/Documents/krishi-mitra/src/i18n/en.json)).
+- **Dot-Notation Key Resolution**: `t('marketplace.price')` resolves `hi.json.marketplace.price`.
+- **Graceful Fallback**: If a key is missing in Hindi, it automatically falls back to English.
+- **Language Switches**: Located on both the Login screen and Sidebar footer.
+
+---
+
+### 2.6 Voice Assistant & Speech-to-Intent Pipeline (`VoiceAssistant.jsx`)
+
+- Floating FAB button with pulse animation when listening.
+- Uses `window.webkitSpeechRecognition` with language set dynamically (`hi-IN` / `en-IN`).
+- **Intent Pattern Matcher**:
+  - *"फ़सल डॉक्टर"* / *"Crop Doctor"* / *"Bimari"* ➔ Navigates to `/crop-doctor` + speaks confirmation in Hindi.
+  - *"मंडी भाव"* / *"Mandi price"* / *"Becho"* ➔ Navigates to `/marketplace-sell`.
+  - *"मौसम"* / *"Weather"* / *"Barish"* ➔ Speaks live temperature and rain conditions aloud via `window.speechSynthesis`.
+  - *"मज़दूर"* / *"Labour"* ➔ Navigates to `/labour-hire`.
+  - *"ट्रैक्टर"* / *"Equipment"* ➔ Navigates to `/equipment-rent`.
+  - *"ऋण"* / *"Loan"* ➔ Navigates to `/fintech`.
+
+---
+
+### 2.7 Offline-First Data & Service Layer (`services/`)
+
+1. **`firebase/config.js`**:
+   - Initializes Firebase App, Auth, Firestore, and Analytics.
+   - Activates `enableIndexedDbPersistence(db)` to cache all Firestore documents locally in IndexedDB.
+2. **`api/weather.service.js`**:
+   - Calls WeatherAPI via browser geolocation or fallback city.
+   - Dual-layer cache: in-memory `_cachedWeather` + `localStorage` TTL fallback.
+   - Automatically computes a guaranteed 6-day weather strip.
+3. **`api/agmarknet.service.js`**:
+   - Manages live Mandi commodity prices, MSP benchmarks, and trends across Madhya Pradesh.
+   - Caches rates in `localStorage` with 1-hour TTL.
+4. **`api/claude.service.js`**:
+   - Sends base64 crop image to vision model with strict JSON schema response (`name`, `severity`, `confidence`, `treatment`, `prevention`, `hindiVoice`).
+   - Includes offline demo disease presets (*Wheat Rust, Rice Blast, Tomato Leaf Curl*).
+
+---
+
+### 2.8 UI Design System & CSS Glassmorphism (`src/styles/`)
+
+- **Strict Custom Tokens (`variables.css`)**:
+  - Forest Green Palette: `--green-900: #1B4332`, `--green-800: #2D6A4F`, `--green-600: #52B788`, `--green-200: #D8F3DC`, `--green-50: #F8FFF8`.
+  - Glassmorphic Tokens: `--bg-glass: rgba(255, 255, 255, 0.72)`, `backdrop-filter: blur(16px)`.
+  - Depth System: `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-card-hover`.
+- **Zero Tailwind / No External UI Component Libraries**: Ensures maximum CSS performance, pure vanilla control, and zero bloated runtime bundles.
+
+---
+
+### 2.9 Feature Pages & User Flows
+
+#### A. Home Dashboard (`HomeDashboard.jsx`)
+- **Hero Banner**: Live season indicator (*"खरीफ सीजन 2026"*), personalized greeting, rotating advisory ticker (*Water management, Pest prevention, Mandi swings*), and weather snapshot.
+- **Micro-Climate Stat Cards**: Temperature, Humidity, Wind Speed, UV Index.
+- **Quick Services Command Center**: 6 cards linking to core tools.
+- **Live Mandi Prices (MP)**: Real-time price list with trend badges and one-click *"Sell / बेचें"* buttons.
+- **6-Day Forecast Strip**: Weather cards with high/low temperatures.
+- **Crop Health Monitor**: Field-by-field health ratings with progress bars.
+- **Farm Alerts**: Weather warnings, sowing windows, and subsidy deadlines.
+
+#### B. Crop Doctor AI (`CropDoctor.jsx`)
+- Upload leaf photos via drag-and-drop or camera capture.
+- Real-time scanning animation with laser scan line.
+- Diagnosis result card with disease name, severity badge, confidence meter, tabbed treatment/prevention steps, and Hindi voice synthesis.
+
+#### C. Marketplace (`MarketplaceSell.jsx` & `MarketplaceBrowse.jsx`)
+- Farmers list harvest with quantity, asking price, and location.
+- Live Mandi price comparison table with MSP benchmarks.
+- Buyers can browse listings, filter by organic certification or delivery options, and place orders.
+
+#### D. Labour Hire & Equipment Rental (`LabourHire.jsx` & `EquipmentRental.jsx`)
+- Post farm jobs, specify required skills, daily wage, and duration.
+- View available workers and tractor/harvester machinery for rent.
+
+#### E. Expert Connect (`ExpertConnect.jsx`)
+- Verified agricultural scientist profiles with ratings, experience, and languages.
+- Instant 15-minute free demo booking with selectable time slots.
+
+#### F. Rural FinTech (`FinTech.jsx`)
+- Kisan Credit Score meter (300 - 900).
+- 1-click application for PM-KISAN, KCC, PMFBY, and Soil Health Card.
+- 5-month farm income vs. expense visual bookkeeping bar chart.
+
+---
+
+## 3. Real-World Enterprise Production Blueprint (To-Be)
+
+```
+[ Rural Farmer (Android APK / PWA) ]
+                │
+                ▼ (Bhashini AI / HTTPS / WebSockets)
+[ Cloud Load Balancer (Cloudflare / GCP Cloud Armor) ]
+                │
+    ┌───────────┴───────────┐
+    ▼                       ▼
+[ Node.js / FastAPI ]   [ LiveKit / WebRTC ] (Video Consultations)
+(Microservices Backend)     │
+    │                       ▼
+    ├── Redis (Mandi Cache & Rate Limiting)
+    ├── PostgreSQL + TimescaleDB (Mandi Historical Data)
+    ├── Firebase Firestore (Real-Time Subscriptions & Chat)
+    └── Cloud Storage (Encrypted Crop Scan Images)
+```
+
+---
+
+## 4. Master Prompts for Cloud AI & Backend Engineering
+
+### 📋 Master Prompt 1: Full Backend & Data Pipeline Generation
 ```text
-You are a Principal Cloud Architect building the production backend for "KrishiMitra" — India's premier AgriTech platform for 100M+ farmers.
+You are a Principal Cloud Architect and Senior Full-Stack Engineer.
+Convert the KrishiMitra AgriTech frontend (React 19 + Vite 8) into an enterprise production system.
 
-Given the frontend architecture in React 19 + Vite 8:
-1. Design and generate a modular backend (FastAPI / Node.js Express with TypeScript) connected to PostgreSQL and Redis.
-2. Implement the following microservices:
-   a. /api/v1/mandi: Ingest and cache daily market commodity prices from Data.gov.in Agmarknet API with Redis cache (1hr TTL) and historical trend sparklines.
-   b. /api/v1/weather/agro: Ingest hyper-local weather with soil temperature, precipitation probability, and agricultural spray advisories.
-   c. /api/v1/crop-doctor/analyze: Multi-modal vision analysis pipeline with disease classification, severity scoring, and regional Hindi/English voice outputs.
-   d. /api/v1/payments/escrow: Razorpay/Cashfree webhook handlers for marketplace trade escrow.
-   e. /api/v1/notifications/whatsapp: Cron worker sending scheduled WhatsApp/SMS daily updates to farmers.
-3. Include Dockerfile, docker-compose.yml, environment variable schemas, and PostgreSQL migration scripts.
+Requirements:
+1. Build a modular FastAPI / Express TypeScript backend with PostgreSQL, Prisma ORM, and Redis.
+2. Implement endpoints:
+   - GET /api/v1/mandi/prices: Live Data.gov.in Agmarknet API ingestion with 1-hour Redis cache and trend analysis.
+   - GET /api/v1/weather/agro: Hyper-local agro-meteorological data (soil moisture, precipitation probability, spray index).
+   - POST /api/v1/crop-doctor/diagnose: Multi-modal vision pipeline with disease severity and treatment recommendations.
+   - POST /api/v1/payments/escrow: Razorpay / Cashfree UPI escrow payment webhooks.
+   - POST /api/v1/consultations/room: LiveKit WebRTC room token generation.
+3. Provide Dockerfile, docker-compose.yml, environment variable schemas, and database seed scripts.
 ```
 
-### 📋 Master Prompt B: Native Android & Bhashini Voice Integration
+### 📋 Master Prompt 2: Native Android APK & Bhashini Voice Integration
 ```text
-You are an expert Mobile & AI Systems Engineer.
-Extend the KrishiMitra web application to:
-1. Wrap the existing Vite PWA with Capacitor.js / Android Studio to produce a production-ready Android APK (<10MB) optimized for low-end Android Go devices (2GB RAM).
-2. Replace mock speech recognition with the Government of India Bhashini ASR/TTS API pipeline for seamless spoken Hindi, Marathi, Punjabi, Gujarati, and Telugu.
-3. Implement offline SQLite caching with background WorkManager synchronization so farmers can scan crops and record audio notes without active internet.
+You are a Senior Mobile AI Engineer.
+1. Wrap the KrishiMitra PWA with Capacitor.js / Android Studio to output an Android APK (<10MB) optimized for Android Go devices.
+2. Integrate Government of India Bhashini ASR/TTS API pipeline for seamless spoken Hindi, Marathi, Punjabi, Gujarati, and Telugu.
+3. Configure SQLite offline database caching and background WorkManager synchronization.
 ```
