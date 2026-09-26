@@ -6,10 +6,10 @@ import { trackLogin } from '@/shared/utils/analytics';
 import '../styles/login.css';
 
 const FEATURES = [
-  { icon: '🔬', title: 'AI Crop Doctor',      titleHi: 'फ़सल डॉक्टर AI',   desc: 'Photo lo, bimari pakdo — instantly', descHi: 'तस्वीर लें, बीमारी तुरंत पहचानें' },
-  { icon: '📈', title: 'Live Mandi Prices',   titleHi: 'लाइव मंडी भाव',    desc: 'Real-time bhav — seedha mandi se', descHi: 'सीधा मंडी से ताज़ा भाव' },
-  { icon: '👨‍💼', title: 'Expert Connect',      titleHi: 'विशेषज्ञ से जुड़ें', desc: 'Specialist se seedha baat karo', descHi: 'कृषि वैज्ञानिकों से सीधी सलाह' },
-  { icon: '💳', title: 'Loans & Schemes',     titleHi: 'ऋण व योजनाएं',     desc: 'PM Kisan, KCC sab ek jagah', descHi: 'पीएम किसान, केसीसी सब एक जगह' },
+  { icon: '🔬', title: 'AI Crop Doctor', titleHi: 'फ़सल डॉक्टर AI', desc: 'Photo lo, bimari pakdo — instantly', descHi: 'तस्वीर लें, बीमारी तुरंत पहचानें' },
+  { icon: '📈', title: 'Live Mandi Prices', titleHi: 'लाइव मंडी भाव', desc: 'Real-time bhav — seedha mandi se', descHi: 'सीधा मंडी से ताज़ा भाव' },
+  { icon: '👨‍💼', title: 'Expert Connect', titleHi: 'विशेषज्ञ से जुड़ें', desc: 'Specialist se seedha baat karo', descHi: 'कृषि वैज्ञानिकों से सीधी सलाह' },
+  { icon: '💳', title: 'Loans & Schemes', titleHi: 'ऋण व योजनाएं', desc: 'PM Kisan, KCC sab ek jagah', descHi: 'पीएम किसान, केसीसी सब एक जगह' },
 ];
 
 export default function Login() {
@@ -189,11 +189,11 @@ export default function Login() {
       <div className="login-right">
         {/* Top right language switch */}
         <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 10 }}>
-          <button 
+          <button
             className="btn btn-ghost btn-sm"
             onClick={toggleLang}
-            style={{ 
-              background: 'rgba(255,255,255,0.7)', 
+            style={{
+              background: 'rgba(255,255,255,0.7)',
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(0,0,0,0.08)',
               borderRadius: 20,

@@ -35,6 +35,9 @@ export const useApp = () => {
     setDemoRole: auth.setDemoRole,
     handleAuthSuccess: auth.handleAuthSuccess,
     completeOnboarding: auth.completeOnboarding,
+    loginWithPassword: auth.loginWithPassword,
+    registerUser: auth.registerUser,
+    loginWithDemo: auth.loginWithDemo,
     loginWithOTP: auth.loginWithOTP,
     logout: auth.logout,
 

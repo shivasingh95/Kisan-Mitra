@@ -7,6 +7,7 @@ import AppRouter from './router/AppRouter';
 // Layout & UI Components
 import Navbar from './shared/components/layout/Navbar';
 import Sidebar from './shared/components/layout/Sidebar';
+import MobileNav from './shared/components/layout/MobileNav';
 import ToastComponent from './shared/components/ui/Toast';
 import InstallPrompt from './shared/components/ui/InstallPrompt';
 import VoiceAssistant from './shared/components/ui/VoiceAssistant';
@@ -15,6 +16,7 @@ import ErrorBoundary from './shared/components/feedback/ErrorBoundary';
 // Layout CSS
 import './shared/components/layout/Navbar.css';
 import './shared/components/layout/Sidebar.css';
+import './shared/components/layout/MobileNav.css';
 import './shared/components/feedback/ErrorBoundary.css';
 
 function ToastContainer() {
@@ -40,6 +42,7 @@ function MainLayout() {
           </ErrorBoundary>
         </main>
       </div>
+      <MobileNav />
     </div>
   );
 }

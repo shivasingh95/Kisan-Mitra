@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { auth } from '@/services/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getUserProfile, createUserProfile } from '@/services/firebase/firestore.service';
-import { firebaseSignOut } from '@/services/firebase/auth.service';
+import { firebaseSignOut, authenticateWithPassword, registerWithPassword, DEMO_USERS } from '@/services/firebase/auth.service';
 
 const AuthContext = createContext(null);
 
@@ -70,6 +70,34 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const loginWithPassword = useCallback(async (username, password, selectedRole) => {
+    const account = await authenticateWithPassword(username, password, selectedRole);
+    setCurrentUser(account);
+    const userRole = account.role || selectedRole || 'farmer';
+    setRole(userRole);
+    setDemoRole(userRole);
+    setAuthStep('app');
+    return account;
+  }, []);
+
+  const registerUser = useCallback(async (roleToRegister, profileData) => {
+    const newAccount = await registerWithPassword(roleToRegister, profileData);
+    setCurrentUser(newAccount);
+    setRole(newAccount.role);
+    setDemoRole(newAccount.role);
+    setAuthStep('app');
+    return newAccount;
+  }, []);
+
+  const loginWithDemo = useCallback((targetRole = 'farmer') => {
+    const demo = DEMO_USERS[targetRole] || DEMO_USERS.farmer;
+    setCurrentUser(demo);
+    setRole(demo.role);
+    setDemoRole(demo.role);
+    setAuthStep('app');
+    return demo;
+  }, []);
+
   const loginWithOTP = useCallback((phone, userData) => {
     const mockProfile = { phone, ...userData, id: 'demo' };
     setCurrentUser(mockProfile);
@@ -113,11 +141,14 @@ export function AuthProvider({ children }) {
     demoRole, setDemoRole,
     handleAuthSuccess,
     completeOnboarding,
+    loginWithPassword,
+    registerUser,
+    loginWithDemo,
     loginWithOTP,
     logout,
   }), [
     currentUser, firebaseUser, role, authStep, demoRole,
-    handleAuthSuccess, completeOnboarding, loginWithOTP, logout,
+    handleAuthSuccess, completeOnboarding, loginWithPassword, registerUser, loginWithDemo, loginWithOTP, logout,
   ]);
 
   return (

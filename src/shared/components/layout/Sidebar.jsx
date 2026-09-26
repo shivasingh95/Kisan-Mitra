@@ -15,6 +15,7 @@ const FARMER_ROUTES = [
   { id: 'expert-connect',  label: 'Expert Connect',  labelHi: 'विशेषज्ञ',      icon: '👨‍💼' },
   { id: 'fintech',         label: 'Loans & Schemes',  labelHi: 'ऋण व योजनाएं', icon: '💳' },
   { id: 'farm-profile',    label: 'My Farm Profile', labelHi: 'मेरी प्रोफ़ाइल', icon: '👤' },
+  { id: 'landing',         label: 'Project Showcase',labelHi: 'प्रोजेक्ट टूर',   icon: '✨' },
   { id: 'system-overview', label: 'System Overview', labelHi: 'सिस्टम',           icon: '🗻️' },
 ];
 const EXPERT_ROUTES = [

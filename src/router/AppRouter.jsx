@@ -8,6 +8,7 @@ import LoadingState from '../shared/components/feedback/LoadingState';
 import { trackPageView } from '@/shared/utils/analytics';
 
 // ── Lazy-loaded pages ────────────────────────
+const LandingPage        = lazy(() => import('../pages/LandingPage'));
 const Login              = lazy(() => import('../pages/Login'));
 const HomeDashboard      = lazy(() => import('../pages/farmer/HomeDashboard'));
 const CropDoctor         = lazy(() => import('../pages/farmer/CropDoctor'));
@@ -40,8 +41,10 @@ export default function AppRouter() {
     return (
       <Suspense fallback={<LoadingState />}>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     );
@@ -50,6 +53,8 @@ export default function AppRouter() {
   return (
     <Suspense fallback={<LoadingState />}>
       <Routes>
+        <Route path="/landing" element={<LandingPage />} />
+
         {/* Redirect Root based on Role */}
         <Route path="/" element={
           <Navigate to={

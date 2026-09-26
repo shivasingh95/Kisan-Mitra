@@ -25,20 +25,79 @@
     "navigation": "Navigation"
   },
   "auth": {
-    "loginTitle": "Login",
-    "loginSubtitle": "Enter your mobile number — you'll receive an OTP",
+    "loginTitle": "Account Login",
+    "loginSubtitle": "Access your portal using your username or phone and password",
+    "registerTitle": "Create Account",
+    "registerSubtitle": "Register your dedicated profile for your role",
+    "username": "Username or Mobile",
+    "usernamePlaceholder": "e.g. ramesh_kisan or 9876543210",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "fullName": "Full Name",
     "mobileNumber": "Mobile Number",
-    "sendOTP": "Send OTP 📲",
-    "verifyOTP": "Verify OTP ✅",
-    "enterOTP": "Enter 6-digit OTP",
-    "otpSent": "OTP Sent",
-    "demoMode": "🚀 Try Demo — without login",
+    "state": "State",
+    "district": "District",
+    "village": "Village / Tehsil",
+    "loginBtn": "Sign In Securely 🚀",
+    "registerBtn": "Complete Registration & Enter 🌾",
+    "demoLogin": "Instant Demo Login",
+    "demoCredentialsTip": "Demo Credentials:",
     "or": "or",
-    "legalText": "By logging in you agree to our Terms of Service and Privacy Policy. Your data is secure. 🔒",
-    "invalidPhone": "Please enter a valid 10-digit mobile number",
-    "invalidOTP": "Please enter a valid 6-digit OTP",
-    "otpError": "Error sending OTP — please try again",
-    "verifyError": "Wrong OTP — please try again"
+    "legalText": "By proceeding you agree to KrishiMitra Terms of Service & Privacy Policy. 🔒",
+    "roles": {
+      "farmer": "Farmer",
+      "buyer": "Buyer / Trader",
+      "expert": "Agri Expert",
+      "worker": "Farm Worker",
+      "admin": "Admin"
+    },
+    "rolesHi": {
+      "farmer": "किसान",
+      "buyer": "व्यापारी",
+      "expert": "विशेषज्ञ",
+      "worker": "मज़दूर",
+      "admin": "व्यवस्थापक"
+    },
+    "farmerFields": {
+      "landAcres": "Land Size (Acres)",
+      "crops": "Primary Crops",
+      "cropsPlaceholder": "e.g. Wheat, Soybean, Mustard"
+    },
+    "buyerFields": {
+      "businessName": "Trade / Company Name",
+      "mandiCity": "Operating Mandi / City",
+      "businessType": "Business Type",
+      "businessTypeWholesaler": "Wholesaler / Arhatiya",
+      "businessTypeProcessor": "Food Processor / Mill",
+      "businessTypeExporter": "Agri Exporter",
+      "businessTypeRetailer": "Retailer / Chain",
+      "gstin": "GSTIN / Mandi License (Optional)"
+    },
+    "expertFields": {
+      "qualification": "Highest Degree (e.g. M.Sc / Ph.D Agri)",
+      "institution": "Institute / KVK / University",
+      "specialization": "Specialization Domain",
+      "specializationPathology": "Crop Pathology & Diseases",
+      "specializationSoil": "Soil Chemistry & Nutrition",
+      "specializationHorticulture": "Horticulture & Fruits",
+      "specializationPests": "Entomology & Pest Control",
+      "experience": "Experience (Years)"
+    },
+    "workerFields": {
+      "dailyWage": "Expected Daily Wage (₹)",
+      "groupSize": "Team / Group Size",
+      "skills": "Primary Farm Skills"
+    },
+    "validation": {
+      "required": "This field is required",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 4 characters",
+      "invalidUsername": "Username must be at least 3 characters",
+      "invalidCredentials": "Invalid username or password for this role",
+      "userAlreadyExists": "Username already taken. Please choose another or login."
+    }
   },
   "weather": {
     "loading": "Loading weather...",

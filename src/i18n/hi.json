@@ -25,20 +25,79 @@
     "navigation": "नेविगेशन"
   },
   "auth": {
-    "loginTitle": "Login करें",
-    "loginSubtitle": "अपना मोबाइल नंबर डालिए — OTP आएगा",
+    "loginTitle": "खाता लॉगिन करें",
+    "loginSubtitle": "अपने यूजरनेम / मोबाइल और पासवर्ड से पोर्टल में प्रवेश करें",
+    "registerTitle": "नया खाता बनाएं",
+    "registerSubtitle": "अपनी भूमिका (Role) के अनुसार नया प्रोफ़ाइल पंजीकृत करें",
+    "username": "यूजरनेम या मोबाइल नंबर",
+    "usernamePlaceholder": "जैसे: ramesh_kisan या 9876543210",
+    "password": "पासवर्ड",
+    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "पासवर्ड पुनः दर्ज करें",
+    "fullName": "पूरा नाम",
     "mobileNumber": "मोबाइल नंबर",
-    "sendOTP": "OTP भेजो 📲",
-    "verifyOTP": "OTP जांचें ✅",
-    "enterOTP": "6-अंकों का OTP डालें",
-    "otpSent": "OTP भेजा गया",
-    "demoMode": "🚀 Demo में try करो — बिना login के",
+    "state": "राज्य",
+    "district": "ज़िला",
+    "village": "गांव / तहसील",
+    "loginBtn": "सुरक्षित लॉगिन करें 🚀",
+    "registerBtn": "पंजीकरण पूरा करें और शुरू करें 🌾",
+    "demoLogin": "त्वरित डेमो लॉगिन",
+    "demoCredentialsTip": "डेमो लॉगिन विवरण:",
     "or": "या",
-    "legalText": "Login करके आप हमारे Terms of Service और Privacy Policy से agree करते हैं। आपका data सुरक्षित है। 🔒",
-    "invalidPhone": "कृपया सही 10 अंकों का मोबाइल नंबर डालें",
-    "invalidOTP": "कृपया सही 6 अंकों का OTP डालें",
-    "otpError": "OTP भेजने में त्रुटि — पुनः प्रयास करें",
-    "verifyError": "गलत OTP — फिर से कोशिश करें"
+    "legalText": "आगे बढ़कर आप कृषि मित्र के नियम और गोपनीयता नीति से सहमत होते हैं। 🔒",
+    "roles": {
+      "farmer": "किसान",
+      "buyer": "व्यापारी / खरीदार",
+      "expert": "कृषि विशेषज्ञ",
+      "worker": "कृषि मज़दूर",
+      "admin": "एडमिन / व्यवस्थापक"
+    },
+    "rolesHi": {
+      "farmer": "किसान",
+      "buyer": "व्यापारी",
+      "expert": "विशेषज्ञ",
+      "worker": "मज़दूर",
+      "admin": "व्यवस्थापक"
+    },
+    "farmerFields": {
+      "landAcres": "खेती का रकबा (एकड़ में)",
+      "crops": "मुख्य फसलें",
+      "cropsPlaceholder": "जैसे: गेहूं, सोयाबीन, चना, सरसों"
+    },
+    "buyerFields": {
+      "businessName": "व्यापार / फर्म का नाम",
+      "mandiCity": "संबद्ध मंडी / शहर",
+      "businessType": "व्यापार प्रकार",
+      "businessTypeWholesaler": "आढ़ती / थोक व्यापारी",
+      "businessTypeProcessor": "खाद्य प्रसंस्करण / मिल",
+      "businessTypeExporter": "कृषि निर्यातक",
+      "businessTypeRetailer": "खुदरा विक्रेता",
+      "gstin": "GSTIN / मंडी लाइसेंस (वैकल्पिक)"
+    },
+    "expertFields": {
+      "qualification": "उच्चतम डिग्री (जैसे M.Sc / Ph.D कृषि)",
+      "institution": "संस्थान / कृषि विज्ञान केंद्र (KVK)",
+      "specialization": "विशेषज्ञता का क्षेत्र",
+      "specializationPathology": "पादप रोग विज्ञान (Crop Diseases)",
+      "specializationSoil": "मृदा विज्ञान व पोषण (Soil Science)",
+      "specializationHorticulture": "बागवानी (Horticulture)",
+      "specializationPests": "कीट नियंत्रण (Pest Control)",
+      "experience": "अनुभव (वर्षों में)"
+    },
+    "workerFields": {
+      "dailyWage": "दैनिक मजदूरी दर (₹)",
+      "groupSize": "श्रमिक समूह संख्या",
+      "skills": "मुख्य कृषि कार्य / हुनर"
+    },
+    "validation": {
+      "required": "यह जानकारी भरना अनिवार्य है",
+      "passwordMismatch": "पासवर्ड मेल नहीं खाते हैं",
+      "passwordTooShort": "पासवर्ड कम से कम 4 अक्षरों का होना चाहिए",
+      "invalidUsername": "यूजरनेम कम से कम 3 अक्षरों का होना चाहिए",
+      "invalidCredentials": "इस भूमिका के लिए गलत यूजरनेम या पासवर्ड",
+      "userAlreadyExists": "यह यूजरनेम पहले से मौजूद है। कृपया दूसरा चुनें या लॉगिन करें।"
+    }
   },
   "weather": {
     "loading": "मौसम लोड हो रहा है...",
